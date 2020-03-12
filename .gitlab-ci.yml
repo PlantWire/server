@@ -18,7 +18,7 @@ unit_tests:
   artifacts:
     expire_in: 1 day
     paths:
-      - test/build/pwire-sensor-test
+      - test/build/pwire-server-test
 build_prod:
   stage: build
   image: gcc:latest
@@ -33,4 +33,4 @@ build_prod:
   artifacts:
     expire_in: 14 days
     paths:
-      - exe/build/pwire-sensor
+      - exe/build/pwire-server
