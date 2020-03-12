@@ -1,0 +1,20 @@
+stages:
+  - lint
+  - test
+linter:
+  stage: lint
+  image: python:latest
+  before_script:
+    - pip install cpplint
+  script:
+    - make lint
+unit_tests:
+  stage: test
+  image: gcc:latest
+  script:
+    - make build_test
+    - make run_test
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - test/build/pwire-sensor-test
