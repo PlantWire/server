@@ -18,3 +18,17 @@ unit_tests:
     expire_in: 1 day
     paths:
       - test/build/pwire-sensor-test
+build_prod:
+  stage: test
+  image: gcc:latest
+  only:
+    - master
+  before_script:
+    - apt-get install libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi libncurses5-dev gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+  script:
+    - make build_lib_prod
+    - make build_prod
+  artifacts:
+    expire_in: 14 days
+    paths:
+      - exe/build/pwire-sensor
