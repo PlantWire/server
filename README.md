@@ -1,5 +1,9 @@
 # pWire Server
 
+## For Users:
+
+[Latest Build](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/jobs/artifacts/master/raw/exe/build/pwire-server?job=build_prod)
+
 ## For Developers:
 
 ### Requirements:
