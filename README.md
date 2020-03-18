@@ -5,6 +5,7 @@
 ## For Developers:
 
 ### Requirements:
+pWire Server needs at least C++14
 
 pWire Server uses the following software for it's build process:
 
@@ -14,6 +15,13 @@ pWire Server uses the following software for it's build process:
 1. Install make on your pc
 2. Install cpplint on your pc (pip can be used see link above)
 3. Use a IDE to your liking (cevelop supports both makefiles and cute)
+
+pwire Server is dependent on the following libraries:
+- [CppLinuxSerial](https://github.com/gbmhunter/CppLinuxSerial)
+- [cpp_redis](https://github.com/cpp-redis/cpp_redis)
+1. Install cpp_redis -> [instructions](https://github.com/cpp-redis/cpp_redis/wiki/Installation)
+2. CppLinuxSerial is already integrated into the sourcecode and does not need to be installed separately
+3. Boost asio has to be installed for the serial port (ubuntu sudo apt install libasio-dev libboost-system-dev)
 
 ### Usage:
 

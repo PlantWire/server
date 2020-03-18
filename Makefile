@@ -17,4 +17,4 @@ build_prod:	build_lib_prod
 	cd exe/ && make build_prod
 
 lint:
-	cpplint --filter=-legal/copyright --recursive --exclude=test/cute --exclude=.metadata .
+	cpplint --filter=-legal/copyright,-build/c++11 --recursive --exclude=lib/include/CppLinuxSerial --exclude=lib/src/CppLinuxSerial --exclude=test/cute --exclude=.metadata .

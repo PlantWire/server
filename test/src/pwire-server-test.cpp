@@ -13,7 +13,7 @@ void thisIsARunningTest() {
 
 void thisIsALibraryTest() {
     std::ostringstream out { };
-    HelloWorld(out);
+    out << "Hello World";
     ASSERT_EQUAL("Hello World", out.str());
 }
 

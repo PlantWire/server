@@ -23,7 +23,7 @@ build_test:
 	mkdir -p build/
     endif
 	$(CXX) -I cute/ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o
-	$(CXX) build/$(EXECUTABLE).o -L ../lib/build/ -lpwire-server -o build/$(EXECUTABLE)
+	$(CXX) build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lboost_system
 
 clean:
     ifeq ($(OS),Windows_NT)
