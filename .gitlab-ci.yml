@@ -12,6 +12,20 @@ linter:
 unit_tests:
   stage: test
   image: gcc:latest
+  before_script:
+    - apt install libasio-dev libboost-system-dev
+#Install cpp-redis dependency
+    - apt install git
+    - apt install cmake
+    - apt install make
+    - git clone https://github.com/cpp-redis/cpp_redis.git
+    - cd cpp_redis
+    - git submodule init && git submodule update
+    - mkdir build && cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=Release
+    - make
+    - make install
+#/Install
   script:
     - make build_test
     - make run_test
@@ -30,16 +44,34 @@ build_prod:
 #Install cpp-redis dependency
     - apt install git
     - apt install cmake
+    - apt install make
     - git clone https://github.com/cpp-redis/cpp_redis.git
     - cd cpp_redis
     - git submodule init && git submodule update
     - mkdir build && cd build
+    - export CXX=/usr/bin/arm-linux-gnueabihf-g++
     - cmake .. -DCMAKE_BUILD_TYPE=Release
+    - cmake -DCMAKE_INSTALL_PREFIX=/usr/arm-linux-gnueabihf/ .
     - make
+    - cp lib/libcpp_redis.a /usr/arm-linux-gnueabihf/lib/
+    - cp -r includes/cpp_redis/ /usr/arm-linux-gnueabihf/include/
+    - cp lib/libtacopie.a /usr/arm-linux-gnueabihf/lib/
+    - cp -r tacopie/includes/tacopie/ /usr/arm-linux-gnueabihf/
     - make install
     - cd /
 #/Install
 #Install boost dependency
+    - wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz
+    - tar -zxf boost_1_72_0.tar.gz
+    - cd boost_1_72_0/
+    - ./bootstrap.sh --prefix=/usr/arm-linux-gnueabihf/ --with-libraries=system
+    - sed -i 's/using gcc ;/using gcc : arm : arm-linux-gnueabihf-g++ ;/g' project-config.jam
+    - ./b2 link=static
+    - ./b2 headers
+    - cp stage/lib/libboost_system.a /usr/arm-linux-gnueabihf/lib/
+    - cp -r boost /usr/arm-linux-gnueabihf/include/
+    - cd /
+#/Install
   script:
     - make build_lib_prod
     - make build_prod

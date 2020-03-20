@@ -12,7 +12,7 @@ build_prod:
     else
 	mkdir -p build/
     endif
-	arm-linux-gnueabihf-g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra
+	arm-linux-gnueabihf-g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra -std=c++14
 	arm-linux-gnueabihf-g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
 
 build:
@@ -23,7 +23,7 @@ build:
     else
 	mkdir -p build/
     endif
-	g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra
+	g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra -std=c++14
 	g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
 
 .PHONY: build

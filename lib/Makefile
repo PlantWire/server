@@ -19,9 +19,8 @@ build_lib:
     else
 	mkdir -p build/
     endif
-	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra
-	$(CXX) src/CppLinuxSerial/SerialPort.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/SerialPort.o -Wall -Wextra
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/SerialPort.o
+	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++14 
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
 
 build_lib_prod:
     ifeq ($(OS),Windows_NT)
@@ -32,8 +31,7 @@ build_lib_prod:
 	mkdir -p build/
     endif
 	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra
-	arm-linux-gnueabihf-g++ src/CppLinuxSerial/SerialPort.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/SerialPort.o -Wall -Wextra
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/SerialPort.o
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
 
 clean:
     ifeq ($(OS),Windows_NT)

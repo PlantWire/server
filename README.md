@@ -21,12 +21,12 @@ pWire Server uses the following software for it's build process:
 3. Use a IDE to your liking (cevelop supports both makefiles and cute)
 
 pwire Server is dependent on the following libraries:
-- [CppLinuxSerial](https://github.com/gbmhunter/CppLinuxSerial)
+- [Boost.Asio](https://www.boost.org/doc/libs/1_72_0/doc/html/boost_asio.html)
 - [cpp_redis](https://github.com/cpp-redis/cpp_redis)
 1. Install cpp_redis -> [instructions](https://github.com/cpp-redis/cpp_redis/wiki/Installation)
-2. CppLinuxSerial is already integrated into the sourcecode and does not need to be installed separately
-3. Boost asio has to be installed for the serial port (ubuntu sudo apt install libasio-dev libboost-system-dev)
-
+2. Boost asio and system libraries have to be installed for the serial port
+    1. For linux -> sudo apt install libasio-dev libboost-system-dev
+    2. For Windows -> [Instructions](https://www.boost.org/doc/libs/1_72_0/more/getting_started/windows.html)
 ### Usage:
 
 1. Change some code
