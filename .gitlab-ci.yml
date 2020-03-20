@@ -56,11 +56,11 @@ build_prod:
     - cmake -DCMAKE_INSTALL_PREFIX=/usr/arm-linux-gnueabihf/ .
     - make
     - cp lib/libcpp_redis.a /usr/arm-linux-gnueabihf/lib/
-    - cp -r includes/cpp_redis/ /usr/arm-linux-gnueabihf/include/
     - cp lib/libtacopie.a /usr/arm-linux-gnueabihf/lib/
-    - cp -r tacopie/includes/tacopie/ /usr/arm-linux-gnueabihf/
-    - make install
-    - cd ../../
+    - cd ../
+    - cp -r includes/cpp_redis/ /usr/arm-linux-gnueabihf/include/
+    - cp -r tacopie/includes/tacopie/ /usr/arm-linux-gnueabihf/include/
+    - cd ../
 #/Install
 #Install boost dependency
     - wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz
