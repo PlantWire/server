@@ -44,9 +44,9 @@ build_prod:
     - apt update
     - apt install libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi libncurses5-dev gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf -y
 #Install cpp-redis dependency
-    - apt install git
-    - apt install cmake
-    - apt install make
+    - apt install git -y
+    - apt install cmake -y
+    - apt install make -y
     - git clone https://github.com/cpp-redis/cpp_redis.git
     - cd cpp_redis
     - git submodule init && git submodule update
