@@ -14,11 +14,11 @@ unit_tests:
   image: gcc:latest
   before_script:
     - apt update
-    - apt install libasio-dev libboost-system-dev
+    - apt install libasio-dev libboost-system-dev -y
 #Install cpp-redis dependency
-    - apt install git
-    - apt install cmake
-    - apt install make
+    - apt install git -y
+    - apt install cmake -y
+    - apt install make -y
     - git clone https://github.com/cpp-redis/cpp_redis.git
     - cd cpp_redis
     - git submodule init && git submodule update
