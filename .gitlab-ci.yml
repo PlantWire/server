@@ -26,6 +26,7 @@ unit_tests:
     - cmake .. -DCMAKE_BUILD_TYPE=Release
     - make
     - make install
+    - cd /
 #/Install
   script:
     - make build_test
