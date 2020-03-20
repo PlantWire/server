@@ -66,6 +66,7 @@ build_prod:
     - wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz
     - tar -zxf boost_1_72_0.tar.gz
     - cd boost_1_72_0/
+    - export CXX=/usr/bin/g++
     - ./bootstrap.sh --prefix=/usr/arm-linux-gnueabihf/ --with-libraries=system
     - "sed -i 's/using gcc ;/using gcc : arm : arm-linux-gnueabihf-g++ ;/g' project-config.jam"
     - ./b2 link=static
