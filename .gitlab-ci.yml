@@ -13,6 +13,7 @@ unit_tests:
   stage: test
   image: gcc:latest
   before_script:
+    - apt update
     - apt install libasio-dev libboost-system-dev
 #Install cpp-redis dependency
     - apt install git
