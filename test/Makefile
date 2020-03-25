@@ -1,8 +1,9 @@
 EXECUTABLE = pwire-server-test
 
 CFLAGS += -g
-CFLAGS += -fprofile-arcs
-CFLAGS += -ftest-coverage
+COVFLAGS += -fprofile-arcs
+COVFLAGS += -ftest-coverage
+COVFLAGS += -fPIC
 
 all:	build_test
 
@@ -18,8 +19,8 @@ build_test:
     else
 	mkdir -p build/
     endif
-	$(CXX) -I cute/ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o
-	$(CXX) build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra -fprofile-arcs -ftest-coverage -fPIC
+	$(CXX) -I cute/ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/$(EXECUTABLE).o
+	$(CXX) build/$(EXECUTABLE).o $(COVFLAGS) -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
 
 clean:
     ifeq ($(OS),Windows_NT)
@@ -27,4 +28,4 @@ clean:
     else
 	rm build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
     endif
-
+	
