@@ -64,7 +64,6 @@ build_prod:
     - tar -zxf boost_1_72_0.tar.gz
     - cd boost_1_72_0/
     - export CXX=$CXX_TEMP
-    - echo $CXX
     - export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     - ./bootstrap.sh --prefix=/usr/arm-linux-gnueabihf/ --with-libraries=system
     - "sed -i 's/using gcc ;/using gcc : arm : arm-linux-gnueabihf-g++ ;/g' project-config.jam"

@@ -1,18 +1,14 @@
 EXECUTABLE = pwire-server-test
-BUILD_MODE = debug
 
-ifeq ($(BUILD_MODE),debug)
-	CFLAGS += -g
-else ifeq ($(BUILD_MODE),run)
-	CFLAGS += -O3
-else
-	$(error Build mode $(BUILD_MODE) not supported by this Makefile)
-endif
+CFLAGS += -g
+CFLAGS += -fprofile-arcs
+CFLAGS += -ftest-coverage
 
 all:	build_test
 
 run_test:
 	cd build && ./$(EXECUTABLE)
+	gcov build/pwire-server-test.cpp
 
 build_test:
     ifeq ($(OS),Windows_NT)
