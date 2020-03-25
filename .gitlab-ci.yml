@@ -14,7 +14,8 @@ unit_tests:
   image: gcc:latest
   before_script:
     - apt update
-    - apt install libasio-dev libboost-system-dev -y
+    - apt install libasio-dev libboost-system-dev python-pip -y
+    - pip install gcovr
 #Install cpp-redis dependency
     - apt install git cmake make -y
     - git clone https://github.com/cpp-redis/cpp_redis.git

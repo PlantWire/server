@@ -8,7 +8,7 @@ all:	build_test
 
 run_test:
 	cd build && ./$(EXECUTABLE)
-	gcov build/pwire-server-test.cpp
+	gcovr -r . -e "cute/*"
 
 build_test:
     ifeq ($(OS),Windows_NT)
@@ -19,7 +19,7 @@ build_test:
 	mkdir -p build/
     endif
 	$(CXX) -I cute/ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o
-	$(CXX) build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra -lgcov --coverage
+	$(CXX) build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra -fprofile-arcs -ftest-coverage -fPIC
 
 clean:
     ifeq ($(OS),Windows_NT)
@@ -27,3 +27,4 @@ clean:
     else
 	rm build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
     endif
+
