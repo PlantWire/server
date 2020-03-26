@@ -11,22 +11,7 @@ linter:
     - make lint
 unit_tests:
   stage: test
-  image: gcc:latest
-  before_script:
-    - apt update
-    - apt install libasio-dev libboost-system-dev python-pip -y
-    - pip install gcovr
-#Install cpp-redis dependency
-    - apt install git cmake make -y
-    - git clone https://github.com/cpp-redis/cpp_redis.git
-    - cd cpp_redis
-    - git submodule init && git submodule update
-    - mkdir build && cd build
-    - cmake .. -DCMAKE_BUILD_TYPE=Release
-    - make
-    - make install
-    - cd ../../
-#/Install
+  image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:test
   script:
     - make build_test
     - make run_test
@@ -36,35 +21,13 @@ unit_tests:
       - test/build/pwire-server-test
 build_prod:
   stage: build
-  image: gcc:latest
+  image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:exe
   only:
     - master
-  before_script:
-    - apt update
-    - apt install libc6-armel-cross libc6-dev-armel-cross binutils-arm-linux-gnueabi libncurses5-dev gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf -y
-#Install cpp-redis dependency
-    - apt install git cmake make python -y
-    - git clone https://github.com/cpp-redis/cpp_redis.git
-    - cd cpp_redis
-    - git submodule init && git submodule update
-    - mkdir build && cd build
-    - export CXX_TEMP=$CXX
-    - export CXX=/usr/bin/arm-linux-gnueabihf-g++
-    - cmake .. -DCMAKE_BUILD_TYPE=Release
-    - cmake -DCMAKE_INSTALL_PREFIX=/usr/arm-linux-gnueabihf/ .
-    - make
-    - cp lib/libcpp_redis.a /usr/arm-linux-gnueabihf/lib/
-    - cp lib/libtacopie.a /usr/arm-linux-gnueabihf/lib/
-    - cd ../
-    - cp -r includes/cpp_redis/ /usr/arm-linux-gnueabihf/include/
-    - cp -r tacopie/includes/tacopie/ /usr/arm-linux-gnueabihf/include/
-    - cd ../
-#/Install
 #Install boost dependency
     - wget https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.gz
     - tar -zxf boost_1_72_0.tar.gz
     - cd boost_1_72_0/
-    - export CXX=$CXX_TEMP
     - export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     - ./bootstrap.sh --prefix=/usr/arm-linux-gnueabihf/ --with-libraries=system
     - "sed -i 's/using gcc ;/using gcc : arm : arm-linux-gnueabihf-g++ ;/g' project-config.jam"
