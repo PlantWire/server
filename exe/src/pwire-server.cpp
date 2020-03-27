@@ -5,7 +5,7 @@ void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
   server.writeToLoRa(reply.as_string());
 }
 
-void subscribtionCallback(const std::string &channel, const std::string &msg,
+void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
   if (msg.compare("lpush") == 0) {
     server.getFromFrontend(sendToLoRa);
@@ -23,7 +23,7 @@ void readCallback(const boost::system::error_code &error,
 int main() {
   boost::asio::io_service io{};
   PwireServer server{io, "/dev/ttyS1"};
-  server.registerFrontendListener(subscribtionCallback);
+  server.registerFrontendListener(subscriptionCallback);
   server.readFromLoRa(readCallback);
   io.run();
 }

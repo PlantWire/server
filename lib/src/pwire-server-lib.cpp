@@ -49,20 +49,23 @@ void PwireServer::getFromFrontend(const reply_callback_t &reply_callback) {
 }
 
 void PwireServer::writeToLoRa(std::string data) {
+  // this->serialConn.lock();
   boost::asio::write(sP, boost::asio::buffer(data, sizeof(data)));
+  // this->serialConn.unlock();
 }
 
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
+  // this->serialConn.lock();
   sP.async_read_some(boost::asio::buffer(this->inputBuffer, MAX_BUFFER_LENGHT),
                      [handler, this](const boost::system::error_code &ec,
                                      std::size_t bytes_transferred) {
                        handler(ec, bytes_transferred, *this);
+                       // this->serialConn.unlock();
                      });
 }
 
 std::string PwireServer::getInputBuffer(std::size_t bytes_transferred) {
-  char temp[MAX_BUFFER_LENGHT];
-  strncpy(temp, this->inputBuffer, bytes_transferred);
+  std::string temp(this->inputBuffer, bytes_transferred);
   return temp;
 }
 

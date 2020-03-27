@@ -8,7 +8,6 @@
 #include <mutex>
 #include <string>
 
-// #include "CppLinuxSerial/SerialPort.hpp"
 #include <boost/asio.hpp>
 
 using SerialPort = boost::asio::serial_port;
@@ -45,11 +44,13 @@ class PwireServer {
   void readFromLoRa(read_handler_t &&callback);
 
   std::string getInputBuffer(std::size_t bytes_transferred);
-  // std::string readFromLoRa();
+
  private:
   IOService &io;
   SerialPort sP;
-  std::mutex serialConn{};
+  // ToDo: Activate mutex
+  // boost::mutex serialConnMutex{};
+  // std::unique_lock<std::mutex> serialConn{serialConnMutex};
   char inputBuffer[MAX_BUFFER_LENGHT];
   cpp_redis::subscriber sub;
   cpp_redis::client client;
