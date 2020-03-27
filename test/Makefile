@@ -12,20 +12,20 @@ run_test:
 	gcovr -r . -e "cute/*"
 
 build_test:
-    ifeq ($(OS),Windows_NT)
-        ifeq (exists, IF EXIST build (echo exists))
+  ifeq ($(OS),Windows_NT)
+  ifeq (exists, IF EXIST build (echo exists))
 		md build/
-        endif
-    else
-	mkdir -p build/
-    endif
+  endif
+  else
+		mkdir -p build/
+  endif
 	$(CXX) -I cute/ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/$(EXECUTABLE).o
 	$(CXX) build/$(EXECUTABLE).o $(COVFLAGS) -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
 
 clean:
-    ifeq ($(OS),Windows_NT)
-	del build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
-    else
-	rm build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
-    endif
+  ifeq ($(OS),Windows_NT)
+		del build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
+  else
+		rm build/$(EXECUTABLE) build/$(EXECUTABLE).xml build/$(EXECUTABLE).o
+  endif
 	

@@ -14,12 +14,14 @@
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
 
-class PwireServer; // Forward declaration
+constexpr int MAX_BUFFER_LENGHT = 1024;
 
-typedef std::function< void(cpp_redis::reply & reply,
+class PwireServer;  // Forward declaration
+
+typedef std::function< void(const cpp_redis::reply & reply,
   PwireServer & server)> reply_callback_t;
-typedef std::function< void(const std::string & channel, const std::string & msg,
-  PwireServer & server)>subscribe_callback_t;
+typedef std::function< void(const std::string & channel,
+  const std::string & msg, PwireServer & server)>subscribe_callback_t;
 typedef std::function< void(const boost::system::error_code & ec,
   std::size_t bytes_transferred, PwireServer & server)> read_handler_t;
 
@@ -38,8 +40,7 @@ class PwireServer {
   IOService & io;
   SerialPort sP;
   std::mutex serialConn{};
-  enum { max_buffer_length = 1024 };
-  char inputBuffer[max_buffer_length];
+  char inputBuffer[MAX_BUFFER_LENGHT];
   cpp_redis::subscriber sub;
   cpp_redis::client client;
   void clientConnect();

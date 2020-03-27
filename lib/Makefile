@@ -12,31 +12,31 @@ BUILD_MODE = debug
 all:	build_lib
 
 build_lib:
-    ifeq ($(OS),Windows_NT)
-        ifeq (exists, IF EXIST build (echo exists))
+  ifeq ($(OS),Windows_NT)
+  ifeq (exists, IF EXIST build (echo exists))
 		md build/
-        endif
-    else
-	mkdir -p build/
-    endif
+  endif
+  else
+		mkdir -p build/
+  endif
 	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++14 
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
 
 build_lib_prod:
-    ifeq ($(OS),Windows_NT)
-        ifeq (exists, IF EXIST build (echo exists))
-		md build/
-        endif
-    else
-	mkdir -p build/
+  ifeq ($(OS),Windows_NT)
+    ifeq (exists, IF EXIST build (echo exists))
+			md build/
     endif
+  else
+		mkdir -p build/
+  endif
 	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
 
 clean:
-    ifeq ($(OS),Windows_NT)
-	del build/$(ARCHIVE).*
-    else
-	rm build/$(ARCHIVE).*
-    endif
+  ifeq ($(OS),Windows_NT)
+		del build/$(ARCHIVE).*
+  else
+		rm build/$(ARCHIVE).*
+  endif
 
