@@ -12,8 +12,8 @@ build_prod:
     else
 	mkdir -p build/
     endif
-	arm-linux-gnueabihf-g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra -std=c++14
-	arm-linux-gnueabihf-g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
+	arm-linux-gnueabihf-g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra -std=c++14 --static
+	arm-linux-gnueabihf-g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -lpthread -lboost_system -lc -Wall -Wextra -std=c++14 --static
 
 build:
     ifeq ($(OS),Windows_NT)
@@ -24,7 +24,7 @@ build:
 	mkdir -p build/
     endif
 	g++ src/$(EXECUTABLE).cpp -c $(CFLAGS) $(CXXFLAGS) $(CPPFLAGS) -o build/$(EXECUTABLE).o -Wall -Wextra -std=c++14
-	g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -pthread -lboost_system -Wall -Wextra
+	g++ build/$(EXECUTABLE).o -o build/$(EXECUTABLE) -L ../lib/build/ -lpwire-server -lcpp_redis -ltacopie -lpthread -lboost_system -Wall -Wextra
 
 .PHONY: build
 
