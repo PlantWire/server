@@ -12,7 +12,7 @@ void thisIsARunningTest() {
 }
 
 void thisIsALibraryTest() {
-  std::ostringstream out { };
+  std::ostringstream out{};
   out << "Hello World";
   ASSERT_EQUAL("Hello World", out.str());
 }
@@ -23,7 +23,7 @@ bool runAllTests(int argc, char const *argv[]) {
   s.push_back(CUTE(thisIsALibraryTest));
   s.push_back(CUTE(thisIsARunningTest));
   cute::xml_file_opener xmlfile(argc, argv);
-  cute::xml_listener<cute::ide_listener<> >  lis(xmlfile.out);
+  cute::xml_listener<cute::ide_listener<> > lis(xmlfile.out);
   bool success = cute::makeRunner(lis, argc, argv)(s, "AllTests");
   return success;
 }
