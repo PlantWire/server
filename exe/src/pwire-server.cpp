@@ -1,36 +1,30 @@
 #include <iostream>
 #include "../../lib/include/pwire-server-lib.h"
 
-PwireServer server{"/dev/ttyS1"};
-
-void sendToLoRa(cpp_redis::reply const & reply) {
+void sendToLoRa(cpp_redis::reply const & reply, PwireServer & server) {
     server.writeToLoRa(reply.as_string());
-    server.pushToFrontend(reply.as_string());
 }
 
-void subscribtionCallback(const std::string& channel, const std::string& msg) {
+void subscribtionCallback(const std::string& channel, const std::string& msg, PwireServer & server) {
     if (msg.compare("lpush") == 0) {
         server.getFromFrontend(sendToLoRa);
     }
 }
 
 void readCallback(const boost::system::error_code& error,
-  std::size_t bytes_transferred) {
-    server.pushToFrontend("read");
-    // server.pushToFrontend(result);
-    // result.clear();
-    // server.readFromLoRa(result, readCallback);
+  std::size_t bytes_transferred, PwireServer & server) {
+    // server.pushToFrontend("read");
+    if(bytes_transferred > 0){
+        //server.pushToFrontend(server.getInputBuffer(bytes_transferred));
+    }
+    server.readFromLoRa(readCallback);
 }
 
 // Boost asio (asynchronous IO)
 int main() {
-    // PwireServer server{"/dev/ttyS1"};
+    boost::asio::io_service io{};
+    PwireServer server{io, "/dev/ttyS1"};
     server.registerFrontendListener(subscribtionCallback);
-    // server.readFromLoRa(result, readCallback);
-    std::string result{};
-    while (true) {
-        result = server.readFromLoRa();
-        server.pushToFrontend(result);
-        result.clear();
-    }
+    server.readFromLoRa(readCallback);
+    io.run();
 }
