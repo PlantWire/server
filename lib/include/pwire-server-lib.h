@@ -28,7 +28,7 @@ typedef std::function<void(const boost::system::error_code &ec,
                            PwireServer &server)> read_handler_t;
 
 class PwireServer {
-public:
+ public:
   PwireServer(IOService &io, std::string port);
 
   ~PwireServer();
@@ -46,7 +46,7 @@ public:
 
   std::string getInputBuffer(std::size_t bytes_transferred);
   // std::string readFromLoRa();
-private:
+ private:
   IOService &io;
   SerialPort sP;
   std::mutex serialConn{};
