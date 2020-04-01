@@ -7,9 +7,7 @@ void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
-  if (msg.compare("lpush") == 0) {
-    server.getFromFrontend(sendToLoRa);
-  }
+  server.writeToLoRa(msg);
 }
 
 void readCallback(const boost::system::error_code &error,

@@ -37,8 +37,6 @@ class PwireServer {
 
   void pushToFrontend(std::string data);
 
-  void getFromFrontend(const reply_callback_t &reply_callback);
-
   void writeToLoRa(std::string data);
 
   void readFromLoRa(read_handler_t &&callback);

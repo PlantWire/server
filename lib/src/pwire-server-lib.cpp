@@ -28,7 +28,7 @@ PwireServer::~PwireServer() {
 
 void PwireServer::
 registerFrontendListener(const subscribe_callback_t &callback) {
-  sub.subscribe("__keyspace@0__:pwire-server",
+  sub.subscribe("pwire-server",
                 [this, callback](const std::string &channel,
                                  const std::string &msg) {
                   callback(channel, msg, *this);
@@ -37,14 +37,7 @@ registerFrontendListener(const subscribe_callback_t &callback) {
 }
 
 void PwireServer::pushToFrontend(std::string data) {
-  client.lpush("pwire-frontend", {data}, [](cpp_redis::reply &reply) {});
-  client.commit();
-}
-
-void PwireServer::getFromFrontend(const reply_callback_t &reply_callback) {
-  client.lpop("pwire-server", [this, reply_callback](cpp_redis::reply &reply) {
-    reply_callback(reply, *this);
-  });
+  client.publish("pwire-frontend", {data}, [](cpp_redis::reply &reply) {});
   client.commit();
 }
 
