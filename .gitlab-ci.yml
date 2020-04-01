@@ -2,6 +2,7 @@ stages:
   - lint
   - test
   - build
+  - deploy
 linter:
   stage: lint
   image: python:latest
@@ -31,4 +32,7 @@ build_prod:
   artifacts:
     expire_in: 14 days
     paths:
-      - pwire-server
+      - pwire-server      
+deploy:
+  stage: deploy
+  trigger: epj/2020/pwire/pwire-installer
