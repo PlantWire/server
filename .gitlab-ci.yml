@@ -28,7 +28,7 @@ build_prod:
   script:
     - make build_lib_prod
     - make build_prod
-    - cp /ext/build/pwire-server .
+    - cp ext/build/pwire-server .
   artifacts:
     expire_in: 14 days
     paths:
