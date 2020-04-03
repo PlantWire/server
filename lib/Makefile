@@ -1,4 +1,5 @@
 ARCHIVE = libpwire-server
+SPWL = SPWLPackage
 BUILD_MODE = debug
 
 #ifeq ($(BUILD_MODE),debug)
@@ -19,8 +20,9 @@ build_lib:
   else
 		mkdir -p build/
   endif
-	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++14 
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
+	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
+	$(CXX) src/SPWLPackage.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(SPWL).o -Wall -Wextra -std=c++17
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/$(SPWL).o
 
 build_lib_prod:
   ifeq ($(OS),Windows_NT)
@@ -30,13 +32,16 @@ build_lib_prod:
   else
 		mkdir -p build/
   endif
-	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o
+	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
+	arm-linux-gnueabihf-g++ src/SPWLPackage.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/$(SPWL).o -Wall -Wextra -std=c++17
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/$(SPWL).o
 
 clean:
   ifeq ($(OS),Windows_NT)
 		del build/$(ARCHIVE).*
+		del build/$(SPWL).*
   else
 		rm build/$(ARCHIVE).*
+		rm build/$(SPWL).*
   endif
 

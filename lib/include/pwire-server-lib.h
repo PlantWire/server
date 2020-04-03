@@ -7,8 +7,11 @@
 #include <iosfwd>
 #include <mutex>
 #include <string>
+#include <optional>
 
 #include <boost/asio.hpp>
+
+#include "SPWLPackage.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
@@ -23,7 +26,7 @@ typedef std::function<void(const std::string &channel,
                            const std::string &msg,
                            PwireServer &server)> subscribe_callback_t;
 typedef std::function<void(const boost::system::error_code &ec,
-                           std::size_t bytes_transferred,
+                           std::optional<SPWLPackage> package,
                            PwireServer &server)> read_handler_t;
 
 class PwireServer {
@@ -37,11 +40,9 @@ class PwireServer {
 
   void pushToFrontend(std::string data);
 
-  void writeToLoRa(std::string data);
+  void writeToLoRa(SPWLPackage data);
 
   void readFromLoRa(read_handler_t &&callback);
-
-  std::string getInputBuffer(std::size_t bytes_transferred);
 
  private:
   IOService &io;
@@ -56,6 +57,8 @@ class PwireServer {
   void clientConnect();
 
   void subConnect();
+
+  std::string getInputBuffer(std::size_t bytes_transferred);
 };
 
 

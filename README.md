@@ -7,7 +7,7 @@
 ## For Developers:
 
 ### Requirements:
-pWire Server needs at least C++14
+pWire Server needs at least C++17
 
 pWire Server uses the following software for it's build process:
 

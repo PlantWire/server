@@ -1,19 +1,21 @@
 #include "../../lib/include/pwire-server-lib.h"
 #include <iostream>
+#include <optional>
 
-void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
+/*void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
   server.writeToLoRa(reply.as_string());
-}
+}*/
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
-  server.writeToLoRa(msg);
+  server.writeToLoRa(SPWLPackage::encapsulateData(msg));
 }
 
 void readCallback(const boost::system::error_code &error,
-                  const std::size_t bytes_transferred, PwireServer &server) {
-  if (bytes_transferred > 0) {
-    server.pushToFrontend(server.getInputBuffer(bytes_transferred));
+                  const std::optional <SPWLPackage> package,
+                  PwireServer &server) {
+  if (package.has_value()) {
+    server.pushToFrontend(package.value().getData());
   }
   server.readFromLoRa(readCallback);
 }

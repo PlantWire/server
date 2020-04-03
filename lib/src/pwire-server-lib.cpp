@@ -1,6 +1,8 @@
-#include "../include/pwire-server-lib.h"
-
+#include <optional>
 #include <ostream>
+
+#include "../include/pwire-server-lib.h"
+#include "../../lib/include/SPWLPackage.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
@@ -41,19 +43,19 @@ void PwireServer::pushToFrontend(std::string data) {
   client.commit();
 }
 
-void PwireServer::writeToLoRa(std::string data) {
-  // this->serialConn.lock();
-  boost::asio::write(sP, boost::asio::buffer(data, sizeof(data)));
-  // this->serialConn.unlock();
+void PwireServer::writeToLoRa(SPWLPackage data) {
+  std::array<unsigned, 512> toSend{data.rawData()};
+  boost::asio::write(sP, boost::asio::buffer(toSend, toSend.size()));
 }
 
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
-  // this->serialConn.lock();
   sP.async_read_some(boost::asio::buffer(this->inputBuffer, MAX_BUFFER_LENGHT),
                      [handler, this](const boost::system::error_code &ec,
                                      std::size_t bytes_transferred) {
-                       handler(ec, bytes_transferred, *this);
-                       // this->serialConn.unlock();
+                       std::optional<SPWLPackage> package = SPWLPackage::
+                           encapsulatePackage(
+                               this->getInputBuffer(bytes_transferred));
+                       handler(ec, package, *this);
                      });
 }
 
