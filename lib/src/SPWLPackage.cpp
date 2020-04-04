@@ -5,42 +5,44 @@ SPWLPackage::SPWLPackage(uint16_t senderAddress, char channel,
   this->senderAddress = senderAddress;
   this->data = data;
   this->last = last;
+  this->lenght = data.size();
 }
 
 std::string SPWLPackage::getData() const {
   return this->data;
 }
 
+int SPWLPackage::rawDataSize() const {
+  return this->data.size() + HEADERSIZE;
+}
+
 std::array<unsigned, 512> SPWLPackage::rawData() const {
   std::array<unsigned, 512> output{};
 
-  std::string pre{PREAMBLE};
-  std::copy(pre.cbegin(), pre.cend(), output.begin());
-
-  int i = 16;
-  int pos = 7;
-  while ( i > 0 ) {
-    output.at(pos) = senderAddress >> i;
-    i -= 8;
-    pos++;
+  for (int i = 0; i < strlen(PREAMBLE); i++) {
+    output.at(i) = PREAMBLE[i];
   }
 
-  output.at(9) = channel;
+  output.at(7) = this->senderAddress >> 8;
+  output.at(8) = this->senderAddress;
+
+  output.at(9) = this->channel;
+
+  output.at(10) = this->lenght >> 8;
+  output.at(11) = this->lenght;
 
   char last = 0;
   if (this->last) {
     last = 255;
   }
-  output.at(10) = last;
+  output.at(12) = last;
 
   auto outputIter = output.begin();
-  std::advance(outputIter, 10);
+  std::advance(outputIter, 12);
   std::string checksum = generateChecksum(this->data);
   outputIter = std::copy(checksum.cbegin(), checksum.cend(), outputIter);
 
   std::copy(this->data.cbegin(), this->data.cend(), outputIter);
-  //  return "UUUUUUU" + this->senderAddress +
-  //  this->channel + generateChecksum(this->data) + this->data;
   return output;
 }
 

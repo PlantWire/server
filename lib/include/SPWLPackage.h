@@ -6,8 +6,6 @@
 #include <array>
 #include <cstdint>
 
-constexpr char PREAMBLE[] = "UUUUUUU";
-
 class SPWLPackage{
  public:
   SPWLPackage(uint16_t senderAddress, char channel,
@@ -26,9 +24,15 @@ class SPWLPackage{
   std::string getData() const;
 
   std::array<unsigned, 512> rawData() const;
+
+  int rawDataSize() const;
+
  private:
   std::string data;
   uint16_t senderAddress;
+  uint16_t lenght;
+  static constexpr int HEADERSIZE = 29;
+  static constexpr char PREAMBLE[] = "UUUUUUU";
   char channel;
   bool last;
 };

@@ -45,7 +45,11 @@ void PwireServer::pushToFrontend(std::string data) {
 
 void PwireServer::writeToLoRa(SPWLPackage data) {
   std::array<unsigned, 512> toSend{data.rawData()};
-  boost::asio::write(sP, boost::asio::buffer(toSend, toSend.size()));
+  for (int i = 0; i < data.rawDataSize(); i++) {
+    std::string t{static_cast<char>(toSend.at(i))};
+    pushToFrontend(t);
+  }
+  boost::asio::write(sP, boost::asio::buffer(toSend, data.rawDataSize()));
 }
 
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
