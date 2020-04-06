@@ -13,6 +13,8 @@ linter:
 unit_tests:
   stage: test
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:test
+  before_script:
+    - git submodule init
   script:
     - make build_test
     - make run_test
@@ -25,6 +27,8 @@ build_prod:
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:exe
   only:
     - master
+  before_script:
+    - git submodule init
   script:
     - make build_lib_prod
     - make build_prod

@@ -9,7 +9,7 @@ all:	build_test
 
 run_test:
 	cd build && ./$(EXECUTABLE)
-	gcovr -r . -e "cute/*"
+	cd ../ && gcovr -r . -e "test/build/cute*" -e "test/build/ide_listener.h" -e "test/build/xml_listener.h" -e "spwl/*"
 
 build_test:
   ifeq ($(OS),Windows_NT)

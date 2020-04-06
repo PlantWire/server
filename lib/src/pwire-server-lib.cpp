@@ -2,7 +2,7 @@
 #include <ostream>
 
 #include "../include/pwire-server-lib.h"
-#include "../../lib/include/SPWLPackage.h"
+#include "../../spwl/lib/include/SPWL.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
@@ -44,28 +44,29 @@ void PwireServer::pushToFrontend(std::string data) {
 }
 
 void PwireServer::writeToLoRa(SPWLPackage data) {
-  std::array<unsigned, 512> toSend{data.rawData()};
-  for (int i = 0; i < data.rawDataSize(); i++) {
-    std::string t{static_cast<char>(toSend.at(i))};
-    pushToFrontend(t);
+  auto raw = data.rawData();
+  unsigned char toSend[data.rawDataSize()];
+  for (int i = 0; i< data.rawDataSize(); i++) {
+    toSend[i] = raw.at(i);
   }
   boost::asio::write(sP, boost::asio::buffer(toSend, data.rawDataSize()));
 }
 
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
-  sP.async_read_some(boost::asio::buffer(this->inputBuffer, MAX_BUFFER_LENGHT),
+  sP.async_read_some(boost::asio::buffer(this->inputBuffer,
+      SPWLPackage::PACKETSIZE),
                      [handler, this](const boost::system::error_code &ec,
                                      std::size_t bytes_transferred) {
                        std::optional<SPWLPackage> package = SPWLPackage::
                            encapsulatePackage(
-                               this->getInputBuffer(bytes_transferred));
+                               this->getInputBuffer());
                        handler(ec, package, *this);
                      });
 }
 
-std::string PwireServer::getInputBuffer(std::size_t bytes_transferred) {
-  std::string temp(this->inputBuffer, bytes_transferred);
-  return temp;
+const std::array<unsigned,
+    SPWLPackage::PACKETSIZE> & PwireServer::getInputBuffer() const {
+  return this->inputBuffer;
 }
 
 void PwireServer::clientConnect() {

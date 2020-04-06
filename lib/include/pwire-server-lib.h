@@ -11,12 +11,10 @@
 
 #include <boost/asio.hpp>
 
-#include "SPWLPackage.h"
+#include "../../spwl/lib/include/SPWL.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
-
-constexpr int MAX_BUFFER_LENGHT = 1024;
 
 class PwireServer;  // Forward declaration
 
@@ -44,13 +42,12 @@ class PwireServer {
 
   void readFromLoRa(read_handler_t &&callback);
 
+  const std::array<unsigned, SPWLPackage::PACKETSIZE> & getInputBuffer() const;
+
  private:
   IOService &io;
   SerialPort sP;
-  // ToDo: Activate mutex
-  // boost::mutex serialConnMutex{};
-  // std::unique_lock<std::mutex> serialConn{serialConnMutex};
-  char inputBuffer[MAX_BUFFER_LENGHT];
+  std::array<unsigned, SPWLPackage::PACKETSIZE> inputBuffer{};
   cpp_redis::subscriber sub;
   cpp_redis::client client;
 
