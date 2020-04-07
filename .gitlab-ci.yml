@@ -9,6 +9,7 @@ linter:
   stage: lint
   image: python:latest
   before_script:
+    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
     - pip install cpplint
   script:
     - make lint
