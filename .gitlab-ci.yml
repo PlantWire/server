@@ -7,7 +7,11 @@ linter:
   stage: lint
   image: python:latest
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - git submodule update --init --recursive
     - pip install cpplint
   script:
@@ -16,7 +20,11 @@ unit_tests:
   stage: test
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:test
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - git submodule update --init --recursive
   script:
     - make build_test
@@ -31,7 +39,11 @@ build_prod:
   only:
     - master
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - git submodule update --init --recursive
   script:
     - make build_lib_prod
