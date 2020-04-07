@@ -7,9 +7,7 @@ linter:
   stage: lint
   image: python:latest
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
-    - git submodule init
-    - git submodule update
+    - git submodule add https://$submodule_username:$submodule_token@gitlab.dev.ifs.hsr.ch/epj/2020/pwire/spwl.git
     - pip install cpplint
   script:
     - make lint
@@ -17,9 +15,7 @@ unit_tests:
   stage: test
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:test
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
-    - git submodule init
-    - git submodule update
+    - git submodule add https://$submodule_username:$submodule_token@gitlab.dev.ifs.hsr.ch/epj/2020/pwire/spwl.git
   script:
     - make build_test
     - make run_test
@@ -33,9 +29,7 @@ build_prod:
   only:
     - master
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule\_username:$submodule\_token/g' .gitmodules
-    - git submodule init
-    - git submodule update
+    - git submodule add https://$submodule_username:$submodule_token@gitlab.dev.ifs.hsr.ch/epj/2020/pwire/spwl.git
   script:
     - make build_lib_prod
     - make build_prod
