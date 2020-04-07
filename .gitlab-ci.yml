@@ -7,6 +7,7 @@ linter:
   stage: lint
   image: python:latest
   before_script:
+    - echo $submodule_username
     - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .gitmodules
     - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .git/config
     - git submodule update --init --recursive
