@@ -11,6 +11,7 @@ linter:
     - export token=$submodule_token
     - sed -i 's/ssh:\/\/git/https:\/\/'"$username"':'"$token"'/g' .gitmodules
     - sed -i 's/ssh:\/\/git/https:\/\/'"$susername"':'"$token"'/g' .git/config
+    - cat .gitmodules
     - git submodule update --init --recursive
     - pip install cpplint
   script:
