@@ -1,3 +1,5 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
 stages:
   - lint
   - test
@@ -7,11 +9,11 @@ linter:
   stage: lint
   image: python:latest
   before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .gitmodules
-    - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/config
-    - - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/modules/spwl/config
-    - cat .gitmodules
-    - git submodule update --init --recursive
+    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .gitmodules
+    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/config
+    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/modules/spwl/config
+    #- cat .gitmodules
+    #- git submodule update --init --recursive
     - pip install cpplint
   script:
     - make lint
