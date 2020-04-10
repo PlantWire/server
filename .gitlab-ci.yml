@@ -7,10 +7,9 @@ linter:
   stage: lint
   image: python:latest
   before_script:
-    - export username=$submodule_username
-    - export token=$submodule_token
-    - sed -i 's/ssh:\/\/git/https:\/\/'"$username"':'"$token"'/g' .gitmodules
-    - sed -i 's/ssh:\/\/git/https:\/\/'"$susername"':'"$token"'/g' .git/config
+    - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .gitmodules
+    - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/config
+    - - sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/modules/spwl/config
     - cat .gitmodules
     - git submodule update --init --recursive
     - pip install cpplint
