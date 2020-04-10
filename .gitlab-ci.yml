@@ -9,21 +9,12 @@ linter:
   stage: lint
   image: python:latest
   before_script:
-    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .gitmodules
-    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/config
-    #- sed -i 's/ssh:\/\/git/https:\/\/'"$submodule_username"':'"$submodule_token"'/g' .git/modules/spwl/config
-    #- cat .gitmodules
-    #- git submodule update --init --recursive
     - pip install cpplint
   script:
     - make lint
 unit_tests:
   stage: test
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:test
-  before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .gitmodules
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .git/config
-    - git submodule update --init --recursive
   script:
     - make build_test
     - make run_test
@@ -36,10 +27,6 @@ build_prod:
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:exe
   only:
     - master
-  before_script:
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .gitmodules
-    - sed -i 's/ssh:\/\/git/https:\/\/$submodule_username:$submodule_token/g' .git/config
-    - git submodule update --init --recursive
   script:
     - make build_lib_prod
     - make build_prod

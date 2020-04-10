@@ -112,11 +112,11 @@ void PwireServer::readFromLoRa(read_handler_t &&handler) {
       handler(result.first, *this);
     } else {
       // ToDo(ckirchme): Error handling
-      //handler(result.first, *this);
+      // handler(result.first, *this);
     }
   } else {
     // ToDo(ckirchme): Error handling
-    //handler(result.first, *this);
+    // handler(result.first, *this);
   }
 }
 
