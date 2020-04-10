@@ -1,4 +1,3 @@
-#include <optional>
 #include <ostream>
 
 #include "../include/pwire-server-lib.h"
@@ -44,29 +43,81 @@ void PwireServer::pushToFrontend(std::string data) {
 }
 
 void PwireServer::writeToLoRa(SPWLPackage data) {
-  auto raw = data.rawData();
-  unsigned char toSend[data.rawDataSize()];
-  for (int i = 0; i< data.rawDataSize(); i++) {
-    toSend[i] = raw.at(i);
-  }
+  std::array<unsigned char, SPWLPackage::PACKETSIZE> toSend = data.rawData();
   boost::asio::write(sP, boost::asio::buffer(toSend, data.rawDataSize()));
 }
 
-void PwireServer::readFromLoRa(read_handler_t &&handler) {
-  sP.async_read_some(boost::asio::buffer(this->inputBuffer,
-      SPWLPackage::PACKETSIZE),
-                     [handler, this](const boost::system::error_code &ec,
-                                     std::size_t bytes_transferred) {
-                       std::optional<SPWLPackage> package = SPWLPackage::
-                           encapsulatePackage(
-                               this->getInputBuffer());
-                       handler(ec, package, *this);
-                     });
+void readPreamble(SerialPort & sP) {
+  std::array<unsigned char, 1> inputBuffer{};
+  size_t count = 0;
+  auto asioBuffer = boost::asio::buffer(inputBuffer, 1);
+  while (count < SPWLPackage::PREAMBLESIZE) {
+    size_t bytes_read = boost::asio::read(sP, asioBuffer);
+    // ToDo(ckirchme): Error handling try catch
+    if (bytes_read == 1 && inputBuffer.at(0) == SPWLPackage::PREAMBLE[count]) {
+      count++;
+    } else if (bytes_read > 0) {
+      count = 0;
+    }
+  }
 }
 
-const std::array<unsigned,
-    SPWLPackage::PACKETSIZE> & PwireServer::getInputBuffer() const {
-  return this->inputBuffer;
+std::array<unsigned char, SPWLPackage::HEADERSIZE>
+    readHeaderWithoutPreamble(SerialPort & sP) {
+  std::array<unsigned char, SPWLPackage::HEADERSIZE -
+      SPWLPackage::PREAMBLESIZE> restOfHeader{};
+  boost::asio::read(sP, boost::asio::buffer(restOfHeader));
+  // ToDo(ckirchme): Error handling (bytes read etc) Timeout?
+
+  std::array<unsigned char, SPWLPackage::HEADERSIZE> header{};
+  for (size_t i = 0; i < SPWLPackage::PREAMBLESIZE; i++) {
+    header.at(i) = SPWLPackage::PREAMBLE[i];
+  }
+
+  std::copy(restOfHeader.cbegin(), restOfHeader.cend(),
+      header.begin() + SPWLPackage::PREAMBLESIZE);
+
+  return header;
+}
+
+std::array<unsigned char, SPWLPackage::MAXDATASIZE + SPWLPackage::TRAILERSIZE>
+    readRestOfPackage(SerialPort & sP, uint16_t dataLength) {
+    std::array<unsigned char, SPWLPackage::MAXDATASIZE +
+        SPWLPackage::TRAILERSIZE> buffer;
+    boost::asio::read(sP, boost::asio::buffer(buffer,
+        dataLength + SPWLPackage::TRAILERSIZE));
+    return buffer;
+}
+
+std::array<unsigned char, SPWLPackage::PACKETSIZE> gluePacket(
+    std::array<unsigned char, SPWLPackage::HEADERSIZE> header,
+    std::array<unsigned char, SPWLPackage::MAXDATASIZE +
+        SPWLPackage::TRAILERSIZE> restOfData) {
+  std::array<unsigned char, SPWLPackage::PACKETSIZE> packet{};
+  auto packetIt = std::copy(header.cbegin(), header.cend(), packet.begin());
+  std::copy(restOfData.cbegin(), restOfData.cend(), packetIt);
+  return packet;
+}
+
+void PwireServer::readFromLoRa(read_handler_t &&handler) {
+  readPreamble(sP);
+  auto header = readHeaderWithoutPreamble(sP);
+  uint16_t dataLength = SPWLPackage::getLengthFromHeader(header);
+  if (dataLength > 0 && dataLength < SPWLPackage::MAXDATASIZE) {
+    auto restOfData = readRestOfPackage(sP, dataLength);
+    auto packet = gluePacket(header, restOfData);
+    std::pair<SPWLPackage, bool> result = SPWLPackage::
+    encapsulatePackage(packet);
+    if (result.second) {
+      handler(result.first, *this);
+    } else {
+      // ToDo(ckirchme): Error handling
+      //handler(result.first, *this);
+    }
+  } else {
+    // ToDo(ckirchme): Error handling
+    //handler(result.first, *this);
+  }
 }
 
 void PwireServer::clientConnect() {
@@ -77,7 +128,7 @@ void PwireServer::clientConnect() {
                      std::cout << "client disconnected from ";
                      std::cout << host << ":" << port << std::endl;
                      clientConnect();
-                     // TODO(ckirchme): Notify Client, Solve disconnect problem
+                     // TODO(ckirchme): Notify Client
                      // should_exit.notify_all();
                    }
                  });
@@ -90,7 +141,7 @@ void PwireServer::subConnect() {
                 if (status == connect_state::dropped) {
                   std::cout << "subscriber disconnected from ";
                   std::cout << host << ":" << port << std::endl;
-                  // TODO(ckirchme): Notify Client, Solve disconnect problem
+                  // TODO(ckirchme): Notify Client
                   // should_exit.notify_all();
                 }
               });

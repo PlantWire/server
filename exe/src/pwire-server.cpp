@@ -1,6 +1,5 @@
 #include "../../lib/include/pwire-server-lib.h"
 #include <iostream>
-#include <optional>
 
 /*void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
   server.writeToLoRa(reply.as_string());
@@ -8,15 +7,16 @@
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
-  server.writeToLoRa(SPWLPackage::encapsulateData(msg));
+  std::pair<SPWLPackage, bool> result = SPWLPackage::encapsulateData(msg);
+  if (result.second) {
+    server.writeToLoRa(result.first);
+  } else {
+    // ToDo(ckirchme): Log data to big error
+  }
 }
 
-void readCallback(const boost::system::error_code &error,
-                  const std::optional <SPWLPackage> package,
-                  PwireServer &server) {
-  if (package.has_value()) {
-    server.pushToFrontend(package.value().getData());
-  }
+void readCallback(SPWLPackage package, PwireServer &server) {
+  server.pushToFrontend(package.getData());
   server.readFromLoRa(readCallback);
 }
 
