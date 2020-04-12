@@ -7,8 +7,8 @@ using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
 using connect_state = cpp_redis::connect_state;
 
-PwireServer::PwireServer(IOService &inputIo, std::string port)
-    : io{inputIo}, sP{io, port} {
+PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
+    : io{inputIo}, sP{io, port}, uuid{uuid} {
   sP.set_option(SerialPort::baud_rate(9600));
   sP.set_option(SerialPort::parity(SerialPort::parity::none));
   sP.set_option(SerialPort::character_size(SerialPort::character_size(8)));
@@ -16,6 +16,8 @@ PwireServer::PwireServer(IOService &inputIo, std::string port)
 
   subConnect();
   clientConnect();
+
+  createLogEntry(Logger::LogType::info, "pWire Server initialized");
   // cpp_redis::active_logger =
   //  std::unique_ptr<cpp_redis::logger>(new cpp_redis::logger);
   // TODO(ckirchme): Enable logging see https://github.com/cpp-redis/cpp_redis/wiki/Logger
@@ -139,10 +141,16 @@ void PwireServer::subConnect() {
               [this](const std::string &host, std::size_t port,
                      connect_state status) {
                 if (status == connect_state::dropped) {
-                  std::cout << "subscriber disconnected from ";
-                  std::cout << host << ":" << port << std::endl;
+                  createLogEntry(Logger::LogType::error,
+                      "subscriber disconnected from " + host + ":"
+                      + std::to_string(port));
                   // TODO(ckirchme): Notify Client
                   // should_exit.notify_all();
                 }
               });
+}
+
+void PwireServer::createLogEntry(Logger::LogType logType, std::string message) {
+  std::string logEntry = Logger::generateLogEntry(logType, message, this->uuid);
+  pushToFrontend(logEntry);
 }

@@ -22,7 +22,7 @@ void readCallback(SPWLPackage package, PwireServer &server) {
 
 int main() {
   boost::asio::io_service io{};
-  PwireServer server{io, "/dev/ttyS1"};
+  PwireServer server{io, "/dev/ttyS1", "fe2c15fc-85d2-4691-be70-f4adb326a334"};
   server.registerFrontendListener(subscriptionCallback);
   server.readFromLoRa(readCallback);
   io.run();

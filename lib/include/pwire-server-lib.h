@@ -11,6 +11,7 @@
 #include <boost/asio.hpp>
 
 #include "../../spwl/lib/include/SPWL.h"
+#include "./logger.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
@@ -27,7 +28,7 @@ typedef std::function<void(SPWLPackage package,
 
 class PwireServer {
  public:
-  PwireServer(IOService &io, std::string port);
+  PwireServer(IOService &io, std::string port, std::string uuid);
 
   ~PwireServer();
 
@@ -41,6 +42,7 @@ class PwireServer {
   void readFromLoRa(read_handler_t &&callback);
 
  private:
+  std::string uuid;
   IOService &io;
   SerialPort sP;
   cpp_redis::subscriber sub;
@@ -49,6 +51,8 @@ class PwireServer {
   void clientConnect();
 
   void subConnect();
+
+  void createLogEntry(Logger::LogType logType, std::string message);
 };
 
 
