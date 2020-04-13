@@ -12,6 +12,7 @@
 
 #include "../../spwl/lib/include/SPWL.h"
 #include "./logger.h"
+#include "./LoRaModule.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
@@ -43,10 +44,14 @@ class PwireServer {
 
  private:
   std::string uuid;
-  IOService &io;
-  SerialPort sP;
+  E32 lora;
   cpp_redis::subscriber sub;
   cpp_redis::client client;
+
+  std::array<unsigned char, SPWLPackage::HEADERSIZE> readHeader();
+  void readPreamble();
+  std::array<unsigned char, SPWLPackage::MAXDATASIZE>
+      readData(uint16_t dataLength);
 
   void clientConnect();
 

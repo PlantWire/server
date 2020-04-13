@@ -17,7 +17,7 @@ build_prod:	build_lib_prod
 	cd exe/ && make build_prod
 
 lint:
-	cpplint --filter=-legal/copyright,-build/c++11,-runtime/references --recursive --exclude=lib/include/CppLinuxSerial --exclude=lib/src/CppLinuxSerial --exclude=test/cute --exclude=spwl/ --exclude=.metadata .
+	cpplint --filter=-legal/copyright,-build/c++11,-runtime/references --recursive --exclude=test/cute --exclude=spwl/ --exclude=.metadata .
 
 #Initialise submodule
 build_spwl_prod:
