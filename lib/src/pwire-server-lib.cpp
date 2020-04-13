@@ -65,19 +65,10 @@ void readPreamble(SerialPort & sP) {
 }
 
 std::array<unsigned char, SPWLPackage::HEADERSIZE>
-    readHeaderWithoutPreamble(SerialPort & sP) {
-  std::array<unsigned char, SPWLPackage::HEADERSIZE -
-      SPWLPackage::PREAMBLESIZE> restOfHeader{};
-  boost::asio::read(sP, boost::asio::buffer(restOfHeader));
-  // ToDo(ckirchme): Error handling (bytes read etc) Timeout?
-
+    readHeader(SerialPort & sP) {
   std::array<unsigned char, SPWLPackage::HEADERSIZE> header{};
-  for (size_t i = 0; i < SPWLPackage::PREAMBLESIZE; i++) {
-    header.at(i) = SPWLPackage::PREAMBLE[i];
-  }
-
-  std::copy(restOfHeader.cbegin(), restOfHeader.cend(),
-      header.begin() + SPWLPackage::PREAMBLESIZE);
+  boost::asio::read(sP, boost::asio::buffer(header));
+  // ToDo(ckirchme): Error handling (bytes read etc) Timeout?
 
   return header;
 }
@@ -96,18 +87,23 @@ std::array<unsigned char, SPWLPackage::PACKETSIZE> gluePacket(
     std::array<unsigned char, SPWLPackage::MAXDATASIZE +
         SPWLPackage::TRAILERSIZE> restOfData) {
   std::array<unsigned char, SPWLPackage::PACKETSIZE> packet{};
-  auto packetIt = std::copy(header.cbegin(), header.cend(), packet.begin());
+  for (int i = 0; i < SPWLPackage::PREAMBLESIZE; i++) {
+    packet[i] = SPWLPackage::PREAMBLE[i];
+  }
+  auto packetIt = std::copy(header.cbegin(), header.cend(),
+      packet.begin() + SPWLPackage::PREAMBLESIZE);
   std::copy(restOfData.cbegin(), restOfData.cend(), packetIt);
   return packet;
 }
 
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
   readPreamble(sP);
-  auto header = readHeaderWithoutPreamble(sP);
+  auto header = readHeader(sP);
   uint16_t dataLength = SPWLPackage::getLengthFromHeader(header);
   if (dataLength > 0 && dataLength < SPWLPackage::MAXDATASIZE) {
     auto restOfData = readRestOfPackage(sP, dataLength);
     auto packet = gluePacket(header, restOfData);
+
     std::pair<SPWLPackage, bool> result = SPWLPackage::
     encapsulatePackage(packet);
     if (result.second) {
