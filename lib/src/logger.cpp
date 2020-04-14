@@ -18,7 +18,7 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
 
   std::string data {
     "{"
-      "\"Type\": \"logging\","
+      "\"Type\": \"log\","
       "\"Sender\": \"" + uuid + "\","
       "\"Content\":"
         "{"
