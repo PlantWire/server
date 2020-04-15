@@ -9,7 +9,7 @@ using IOService = boost::asio::io_service;
 using connect_state = cpp_redis::connect_state;
 
 PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : lora{inputIo, port, 0, 0, 0}, uuid{uuid} {
+    : uuid{uuid}, lora{inputIo, port, 0, 0, 0} {
   subConnect();
   clientConnect();
 

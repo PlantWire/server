@@ -25,7 +25,7 @@ build_lib:
   endif
 	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
 	$(CXX) src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/logger.o
-	$(CXX) src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/LoRaModule.o
+	$(CXX) src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/LoRaModule.o -lwiringPi
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
 
 build_lib_prod:
@@ -38,7 +38,7 @@ build_lib_prod:
   endif
 	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
 	arm-linux-gnueabihf-g++ src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/logger.o
-	arm-linux-gnueabihf-g++  src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/LoRaModule.o
+	arm-linux-gnueabihf-g++  src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/LoRaModule.o -lwiringPi
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
 
 .PHONY: build_lib build_lib_prod
