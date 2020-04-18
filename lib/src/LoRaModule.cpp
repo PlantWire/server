@@ -8,6 +8,7 @@ E32::E32(IOService & io, std::string port, int aux, int m0, int m1)
   sP.set_option(SerialPort::character_size(SerialPort::character_size(8)));
   sP.set_option(SerialPort::stop_bits(SerialPort::stop_bits::one));
 
+  wiringPiSetup();
   pinMode(aux, INPUT);
   pinMode(m0, OUTPUT);
   pinMode(m1, OUTPUT);
@@ -16,11 +17,12 @@ E32::E32(IOService & io, std::string port, int aux, int m0, int m1)
   setMode(E32::mode::NORMAL);
   releaseModule();
 
-  writeConfig();
+  //writeConfig();
 }
 
 E32::pinState E32::getAuxState() {
-  return static_cast<E32::pinState>(digitalRead(aux));
+  // return static_cast<E32::pinState>(digitalRead(aux));
+  return E32::pinState::ZERO; // Temporary solution
 }
 
 void E32::waitForAux() {

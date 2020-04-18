@@ -24,8 +24,8 @@ build_lib:
 		mkdir -p build/
   endif
 	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
-	$(CXX) src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/logger.o
-	$(CXX) src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/LoRaModule.o -lwiringPi
+	$(CXX) src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/logger.o -std=c++17
+	$(CXX) src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/LoRaModule.o -lwiringPi -std=c++17
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
 
 build_lib_prod:
@@ -36,9 +36,9 @@ build_lib_prod:
   else
 		mkdir -p build/
   endif
-	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
-	arm-linux-gnueabihf-g++ src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/logger.o
-	arm-linux-gnueabihf-g++  src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/LoRaModule.o -lwiringPi
+	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
+	arm-linux-gnueabihf-g++ src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/logger.o -std=c++17
+	arm-linux-gnueabihf-g++  src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/LoRaModule.o -lwiringPi -std=c++17
 	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
 
 .PHONY: build_lib build_lib_prod
