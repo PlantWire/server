@@ -9,7 +9,7 @@ using IOService = boost::asio::io_service;
 using connect_state = cpp_redis::connect_state;
 
 PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : uuid{uuid}, lora{inputIo, port, 0, 13, 11} {
+    : uuid{uuid}, lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2} {
   subConnect();
   clientConnect();
 
@@ -30,7 +30,6 @@ registerFrontendListener(const subscribe_callback_t &callback) {
   sub.subscribe("pwire-server",
                 [this, callback](const std::string &channel,
                                  const std::string &msg) {
-	  	  	  	  this->createLogEntry(Logger::LogType::info, "Callback called");
                   callback(channel, msg, *this);
                 });
   sub.commit();
@@ -42,7 +41,6 @@ void PwireServer::pushToFrontend(std::string data) {
 }
 
 void PwireServer::writeToLoRa(SPWLPackage data) {
-  createLogEntry(Logger::LogType::info, "Function called");
   auto temp = data.rawData();
   lora.send(temp, data.rawDataSize());
   createLogEntry(Logger::LogType::info, "Message sent");
@@ -113,6 +111,8 @@ void PwireServer::readFromLoRa(read_handler_t &&handler) {
     encapsulatePackage(packet);
     if (result.second) {
       handler(result.first, *this);
+      createLogEntry(Logger::LogType::info, "Message received");
+      return;
     } else {
       // ToDo(ckirchme): Error handling
       // handler(result.first, *this);

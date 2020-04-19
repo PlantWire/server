@@ -25,3 +25,8 @@ RUN cd boost_1_72_0/ && ./b2 link=static
 RUN cd boost_1_72_0/ && ./b2 headers
 RUN cd boost_1_72_0/ && cp stage/lib/libboost_system.a /usr/arm-linux-gnueabihf/lib/
 RUN cd boost_1_72_0/ && cp -r boost /usr/arm-linux-gnueabihf/include/
+RUN git clone https://github.com/friendlyarm/WiringNP.git
+RUN cd WiringNP/wiringPi/ && make install-headers
+RUN rm -r cpp_redis
+RUN rm -r boost_1_72_0
+RUN rm -r WiringNP
