@@ -23,13 +23,11 @@ E32::E32(IOService & io, std::string port, int aux, int m0, int m1)
 }
 
 E32::pinState E32::getAuxState() {
-  // return static_cast<E32::pinState>(digitalRead(aux));
-  return E32::pinState::ZERO;  // Temporary solution
+  return static_cast<E32::pinState>(digitalRead(aux));
 }
 
 void E32::waitForAux() {
-  while (getAuxState() == E32::pinState::ONE) {}
-  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  while (getAuxState() == E32::pinState::ZERO) {}
 }
 
 void E32::lockModuleWrite() {
@@ -61,12 +59,12 @@ void E32::setMode(E32::mode mode) {
       digitalWrite(this->m1, E32::pinState::ONE);
       break;
   }
+  waitForAux();
 }
 
 void E32::writeConfig() {
   lockModuleWrite();
   setMode(E32::mode::SLEEP);
-  waitForAux();
 
   std::array<unsigned char, 6> config{};
   config[0] = this->confPrefix;
