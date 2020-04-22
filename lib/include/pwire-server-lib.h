@@ -24,7 +24,7 @@ typedef std::function<void(const cpp_redis::reply &reply,
 typedef std::function<void(const std::string &channel,
                            const std::string &msg,
                            PwireServer &server)> subscribe_callback_t;
-typedef std::function<void(SPWLPackage package,
+typedef std::function<void(SPWLPacket packet,
                            PwireServer &server)> read_handler_t;
 
 class PwireServer {
@@ -38,7 +38,7 @@ class PwireServer {
 
   void pushToFrontend(std::string data);
 
-  void writeToLoRa(SPWLPackage data);
+  void writeToLoRa(SPWLPacket data);
 
   void readFromLoRa(read_handler_t &&callback);
 
@@ -48,10 +48,11 @@ class PwireServer {
   cpp_redis::subscriber sub;
   cpp_redis::client client;
 
-  std::array<unsigned char, SPWLPackage::HEADERSIZE> readHeader();
+  std::array<unsigned char, SPWLPacket::HEADERSIZE> readHeader();
   void readPreamble();
-  std::array<unsigned char, SPWLPackage::MAXDATASIZE>
+  std::array<unsigned char, SPWLPacket::MAXDATASIZE>
       readData(uint16_t dataLength);
+  std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> readChecksum();
 
   void clientConnect();
 

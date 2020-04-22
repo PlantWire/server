@@ -7,7 +7,9 @@
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
-  std::pair<SPWLPackage, bool> result = SPWLPackage::encapsulateData(msg);
+  std::vector<unsigned char> data{};
+  std::copy(msg.cbegin(), msg.cend(), std::back_inserter(data));
+  std::pair<SPWLPacket, bool> result = SPWLPacket::encapsulateData(data);
   if (result.second) {
     server.writeToLoRa(result.first);
   } else {
@@ -15,8 +17,10 @@ void subscriptionCallback(const std::string &channel, const std::string &msg,
   }
 }
 
-void readCallback(SPWLPackage package, PwireServer &server) {
-  server.pushToFrontend(package.getData());
+void readCallback(SPWLPacket packet, PwireServer &server) {
+  std::vector<unsigned char> tempData = packet.getData();
+  std::string data{tempData.cbegin(), tempData.cend()};
+  server.pushToFrontend(data);
   server.readFromLoRa(readCallback);
 }
 
