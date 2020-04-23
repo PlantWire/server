@@ -1,5 +1,5 @@
-#ifndef LIB_INCLUDE_LORAMODULE_H_
-#define LIB_INCLUDE_LORAMODULE_H_
+#ifndef LIB_INCLUDE_LORA_MODULE_H_
+#define LIB_INCLUDE_LORA_MODULE_H_
 
 #include <mutex>
 #include <vector>
@@ -67,4 +67,4 @@ class E32{
     return bytes_read;
   }
 };
-#endif  // LIB_INCLUDE_LORAMODULE_H_
+#endif  // LIB_INCLUDE_LORA_MODULE_H_

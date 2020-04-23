@@ -1,4 +1,4 @@
-#include "../include/LoRaModule.h"
+#include "../include/lora-module.h"
 #include <wiringPi.h>
 #include <chrono>
 #include <thread>

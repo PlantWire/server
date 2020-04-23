@@ -5,13 +5,13 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
   std::string logTypeString{};
 
   switch (logType) {
-    case info:
+    case INFO:
       logTypeString = "info";
       break;
-    case warning:
+    case WARNING:
       logTypeString = "warn";
       break;
-    case error:
+    case ERROR:
       logTypeString = "err";
       break;
   }

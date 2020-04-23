@@ -9,7 +9,8 @@
 
 class Logger{
  public:
-  enum LogType{info, warning, error};
+  enum LogType{INFO, WARNING, ERROR};
+  enum Verbosity{NORMAL, HIGH, HIGHEST};
   static std::string generateLogEntry(Logger::LogType logType,
       std::string message, std::string uuid);
 };
