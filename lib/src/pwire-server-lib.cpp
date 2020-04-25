@@ -2,43 +2,33 @@
 
 #include "../include/pwire-server-lib.h"
 
-using SerialPort = boost::asio::serial_port;
-using IOService = boost::asio::io_service;
 using connect_state = cpp_redis::connect_state;
 
 PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : uuid{uuid}, lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2}, redis{} {
-
-  createLogEntry(Logger::LogType::INFO, "pWire Server initialized");
+    : uuid{uuid}, lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2}, redis{},
+    logger{this->redis, Verbosity::NORMAL, this->uuid} {
+  this->createLogEntry(LogType::INFO, "pWire Server initialized",
+      Verbosity::NORMAL);
 }
 
 void PwireServer::
 registerFrontendListener(const pwire_subscribe_callback_t &callback) {
-  createLogEntry(Logger::LogType::INFO, "Register called");
+  this->createLogEntry(LogType::INFO, "Register called", Verbosity::HIGH);
   this->redis.subscribe("pwire-server",
       [this, callback](const std::string &channel,
                  const std::string &msg){
         callback(channel, msg, *this);
       });
-
-  /*sub.subscribe("pwire-server",
-                [this, callback](const std::string &channel,
-                                 const std::string &msg) {
-                  callback(channel, msg, *this);
-                });
-  sub.commit();*/
 }
 
 void PwireServer::pushToFrontend(std::string data) {
-  /*client.publish("pwire-frontend", {data}, [](cpp_redis::reply &reply) {});
-  client.commit();*/
   redis.push("pwire-frontend", data);
 }
 
 void PwireServer::writeToLoRa(SPWLPacket data) {
   auto temp = data.rawData();
   this->lora.send(temp, data.rawDataSize());
-  createLogEntry(Logger::LogType::INFO, "Message sent");
+  this->createLogEntry(LogType::INFO, "Message sent", Verbosity::HIGH);
 }
 
 void PwireServer::readPreamble() {
@@ -53,36 +43,38 @@ void PwireServer::readPreamble() {
       count = 0;
     }
   }
+  this->createLogEntry(LogType::INFO, "Preamble read", Verbosity::HIGHEST);
 }
 
-std::array<unsigned char, SPWLPacket::HEADERSIZE> PwireServer::readHeader() {
-  std::array<unsigned char, SPWLPacket::HEADERSIZE> header{};
+HeaderContainer PwireServer::readHeader() {
+  HeaderContainer header{};
   this->lora.receive(header, SPWLPacket::HEADERSIZE);
   // ToDo(ckirchme): Error handling (bytes read etc) Timeout?
+  this->createLogEntry(LogType::INFO, "Header read", Verbosity::HIGHEST);
   return header;
 }
 
-std::array<unsigned char, SPWLPacket::MAXDATASIZE>
-    PwireServer::readData(uint16_t dataLength) {
-  std::array<unsigned char, SPWLPacket::MAXDATASIZE> data{};
+DataContainer PwireServer::readData(uint16_t dataLength) {
+  DataContainer data{};
   this->lora.receive(data, dataLength);
+  createLogEntry(LogType::INFO, "Data read", Verbosity::HIGHEST);
   return data;
 }
 
-std::array<unsigned char, SPWLPacket::CHECKSUMSIZE>
-    PwireServer::readChecksum() {
-  std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> checksum{};
+ChecksumContainer PwireServer::readChecksum() {
+  ChecksumContainer checksum{};
   this->lora.receive(checksum, SPWLPacket::CHECKSUMSIZE);
+  this->createLogEntry(LogType::INFO, "Checksum read", Verbosity::HIGHEST);
   return checksum;
 }
 
-std::array<unsigned char, SPWLPacket::PACKETSIZE> gluePacket(
-    std::array<unsigned char, SPWLPacket::HEADERSIZE>  header,
-    std::array<unsigned char, SPWLPacket::MAXDATASIZE> data,
+PacketContainer PwireServer::gluePacket(
+    HeaderContainer  header,
+    DataContainer data,
     uint16_t dataLength,
-    std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> checksum) {
+    ChecksumContainer checksum) {
 
-  std::array<unsigned char, SPWLPacket::PACKETSIZE> packet{};
+  PacketContainer packet{};
   size_t count = 0;
   std::generate(packet.begin(),
       packet.begin() + SPWLPacket::PREAMBLESIZE, [count]() mutable {
@@ -98,6 +90,7 @@ std::array<unsigned char, SPWLPacket::PACKETSIZE> gluePacket(
 
   *packetIt = SPWLPacket::TRAILER;
 
+  createLogEntry(LogType::INFO, "Packet glued", Verbosity::HIGHEST);
   return packet;
 }
 
@@ -113,21 +106,25 @@ void PwireServer::readFromLoRa(read_handler_t &&handler) {
 
     std::pair<SPWLPacket, bool> result = SPWLPacket::
     encapsulatePacket(packet);
+    createLogEntry(LogType::INFO, "Packet created", Verbosity::HIGH);
+
     if (result.second) {
       handler(result.first, *this);
-      createLogEntry(Logger::LogType::INFO, "Message received");
+      createLogEntry(LogType::INFO, "Message received", Verbosity::HIGH);
       return;
     } else {
+      createLogEntry(LogType::ERROR, "Packet not valid", Verbosity::NORMAL);
       // ToDo(ckirchme): Error handling
       // handler(result.first, *this);
     }
   } else {
+    createLogEntry(LogType::ERROR, "Wrong packet data size", Verbosity::NORMAL);
     // ToDo(ckirchme): Error handling
     // handler(result.first, *this);
   }
 }
 
-void PwireServer::createLogEntry(Logger::LogType logType, std::string message) {
-  std::string logEntry = Logger::generateLogEntry(logType, message, this->uuid);
-  pushToFrontend(logEntry);
+void PwireServer::createLogEntry(Logger::LogType logType, std::string message,
+    Logger::Verbosity v) {
+  this->logger.push(logType, message, v);
 }

@@ -6,6 +6,7 @@
 #include <string>
 
 using connect_state = cpp_redis::connect_state;
+
 typedef std::function<void(const std::string &channel,
                            const std::string &msg)> subscribe_callback_t;
 

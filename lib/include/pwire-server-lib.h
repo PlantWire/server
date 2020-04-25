@@ -14,6 +14,12 @@
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
+using Verbosity = Logger::Verbosity;
+using LogType = Logger::LogType;
+using HeaderContainer = std::array<unsigned char, SPWLPacket::HEADERSIZE>;
+using DataContainer = std::array<unsigned char, SPWLPacket::MAXDATASIZE>;
+using PacketContainer = std::array<unsigned char, SPWLPacket::PACKETSIZE>;
+using ChecksumContainer = std::array<unsigned char, SPWLPacket::CHECKSUMSIZE>;
 
 class PwireServer;  // Forward declaration
 
@@ -40,14 +46,20 @@ class PwireServer {
   std::string uuid;
   E32 lora;
   RedisService redis;
+  Logger logger;
 
-  std::array<unsigned char, SPWLPacket::HEADERSIZE> readHeader();
+  HeaderContainer readHeader();
   void readPreamble();
-  std::array<unsigned char, SPWLPacket::MAXDATASIZE>
-      readData(uint16_t dataLength);
-  std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> readChecksum();
+  DataContainer readData(uint16_t dataLength);
+  ChecksumContainer readChecksum();
+  PacketContainer gluePacket(
+      HeaderContainer header,
+      DataContainer data,
+      uint16_t dataLength,
+      ChecksumContainer checksum);
 
-  void createLogEntry(Logger::LogType logType, std::string message);
+  void createLogEntry(Logger::LogType logType, std::string message,
+      Logger::Verbosity v);
 };
 
 

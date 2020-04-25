@@ -7,7 +7,6 @@ RedisService::RedisService() {
 RedisService::~RedisService() {
   this->sub.disconnect();
   this->client.disconnect();
-
   // cpp_redis::active_logger =
   //  std::unique_ptr<cpp_redis::logger>(new cpp_redis::logger);
   // TODO(ckirchme): Enable logging see https://github.com/cpp-redis/cpp_redis/wiki/Logger
@@ -49,9 +48,5 @@ void RedisService::push(std::string channel, std::string data) {
 void RedisService::subscribe(std::string channel,
     subscribe_callback_t callback) {
   this->sub.subscribe(channel, callback);
-      /*[this, callback](const std::string &channel,
-          const std::string &msg) {
-        callback(channel, msg, *this);
-      });*/
   this->sub.commit();
 }
