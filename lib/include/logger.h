@@ -6,22 +6,24 @@
 #define LIB_INCLUDE_LOGGER_H_
 
 #include <string>
-#include "./redis-service.h"
+#include <functional>
+
+using LogCallback = std::function<void(std::string message)>;
 
 class Logger{
  public:
   enum LogType{INFO, WARNING, ERROR};
-  enum Verbosity{NORMAL = 0, HIGH = 1, HIGHEST = 2};
+  enum Verbosity{NORMAL = 0, HIGHER = 1, HIGHEST = 2};
 
  private:
-  RedisService &redis;
+  LogCallback callback;
   std::string uuid;
   Verbosity verbosity;
   static std::string generateLogEntry(Logger::LogType logType,
                                       std::string message, std::string uuid);
 
  public:
-  Logger(RedisService &redis, Verbosity v, std::string uuid);
+  Logger(LogCallback callback, Verbosity v, std::string uuid);
   void push(LogType logType, std::string message, Verbosity level);
   void setVerbosity(Verbosity v);
 };

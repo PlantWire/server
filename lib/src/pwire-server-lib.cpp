@@ -5,15 +5,21 @@
 using connect_state = cpp_redis::connect_state;
 
 PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : uuid{uuid}, lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2}, redis{},
-    logger{this->redis, Verbosity::NORMAL, this->uuid} {
+    : uuid{uuid},
+    logger{
+      [this](std::string message) {
+        this->redis.push("pwire-frontend", message);
+      }, Verbosity::HIGHEST, this->uuid
+    },
+    redis{this->logger},
+    lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2, this->logger} {
   this->createLogEntry(LogType::INFO, "pWire Server initialized",
       Verbosity::NORMAL);
 }
 
 void PwireServer::
 registerFrontendListener(const pwire_subscribe_callback_t &callback) {
-  this->createLogEntry(LogType::INFO, "Register called", Verbosity::HIGH);
+  this->createLogEntry(LogType::INFO, "Register called", Verbosity::HIGHER);
   this->redis.subscribe("pwire-server",
       [this, callback](const std::string &channel,
                  const std::string &msg){
@@ -28,7 +34,7 @@ void PwireServer::pushToFrontend(std::string data) {
 void PwireServer::writeToLoRa(SPWLPacket data) {
   auto temp = data.rawData();
   this->lora.send(temp, data.rawDataSize());
-  this->createLogEntry(LogType::INFO, "Message sent", Verbosity::HIGH);
+  this->createLogEntry(LogType::INFO, "Message sent", Verbosity::HIGHER);
 }
 
 void PwireServer::readPreamble() {
@@ -90,11 +96,11 @@ PacketContainer PwireServer::gluePacket(
 
   *packetIt = SPWLPacket::TRAILER;
 
-  createLogEntry(LogType::INFO, "Packet glued", Verbosity::HIGHEST);
+  this->createLogEntry(LogType::INFO, "Packet glued", Verbosity::HIGHEST);
   return packet;
 }
 
-void PwireServer::readFromLoRa(read_handler_t &&handler) {
+void PwireServer::readFromLoRa(read_handler_t handler) {
   readPreamble();
   auto header = readHeader();
   uint16_t dataLength = SPWLPacket::getLengthFromHeader(header);
@@ -104,27 +110,26 @@ void PwireServer::readFromLoRa(read_handler_t &&handler) {
     auto checksum = readChecksum();
     auto packet = gluePacket(header, data, dataLength, checksum);
 
-    std::pair<SPWLPacket, bool> result = SPWLPacket::
-    encapsulatePacket(packet);
-    createLogEntry(LogType::INFO, "Packet created", Verbosity::HIGH);
+    std::pair<SPWLPacket, bool> result = SPWLPacket::encapsulatePacket(packet);
+    this->createLogEntry(LogType::INFO, "Packet created", Verbosity::HIGHER);
 
     if (result.second) {
+      this->createLogEntry(LogType::INFO, "Message received",
+          Verbosity::HIGHER);
       handler(result.first, *this);
-      createLogEntry(LogType::INFO, "Message received", Verbosity::HIGH);
-      return;
     } else {
-      createLogEntry(LogType::ERROR, "Packet not valid", Verbosity::NORMAL);
-      // ToDo(ckirchme): Error handling
-      // handler(result.first, *this);
+      this->createLogEntry(LogType::WARNING, "Received invalid packet",
+          Verbosity::NORMAL);
+      this->readFromLoRa(handler);
     }
   } else {
-    createLogEntry(LogType::ERROR, "Wrong packet data size", Verbosity::NORMAL);
-    // ToDo(ckirchme): Error handling
-    // handler(result.first, *this);
+    this->createLogEntry(LogType::WARNING,
+        "Received invalid packet (data size)", Verbosity::NORMAL);
+    this->readFromLoRa(handler);
   }
 }
 
-void PwireServer::createLogEntry(Logger::LogType logType, std::string message,
-    Logger::Verbosity v) {
-  this->logger.push(logType, message, v);
+void PwireServer::createLogEntry(LogType logType, std::string message,
+    Verbosity v) {
+  this->logger.push(logType, "[Server] " + message, v);
 }

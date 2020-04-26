@@ -32,15 +32,15 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
   return data;
 }
 
-Logger::Logger(RedisService &redis, Verbosity v, std::string uuid) :
-    redis{redis}, verbosity{v}, uuid(uuid) {
+Logger::Logger(LogCallback callback, Verbosity v, std::string uuid) :
+    callback{callback}, verbosity{v}, uuid(uuid) {
 }
 
 void Logger::push(LogType logType, std::string message, Verbosity level) {
   if (level <= this->verbosity) {
     std::string logEntry =
         Logger::generateLogEntry(logType, message, this->uuid);
-    this->redis.push("pwire-frontend", logEntry);
+    this->callback(logEntry);
   }
 }
 

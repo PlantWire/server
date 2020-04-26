@@ -40,13 +40,14 @@ class PwireServer {
 
   void writeToLoRa(SPWLPacket data);
 
-  void readFromLoRa(read_handler_t &&callback);
+  void readFromLoRa(read_handler_t callback);
 
  private:
   std::string uuid;
-  E32 lora;
-  RedisService redis;
+  // Has to be before E32 and redis for initialization ordering
   Logger logger;
+  RedisService redis;
+  E32 lora;
 
   HeaderContainer readHeader();
   void readPreamble();
