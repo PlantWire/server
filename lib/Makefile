@@ -25,8 +25,9 @@ build_lib:
   endif
 	$(CXX) src/pwire-server-lib.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
 	$(CXX) src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/logger.o -std=c++17
-	$(CXX) src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/LoRaModule.o -lwiringPi -std=c++17
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
+	$(CXX) src/lora-module.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/lora-module.o -lwiringPi -std=c++17
+	$(CXX) src/redis-service.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) $(COVFLAGS) -o build/redis-service.o -lcpp_redis -ltacopie -pthread -std=c++17
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/lora-module.o build/redis-service.o
 
 build_lib_prod:
   ifeq ($(OS),Windows_NT)
@@ -36,10 +37,11 @@ build_lib_prod:
   else
 		mkdir -p build/
   endif
-	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -lcpp_redis -ltacopie -pthread -Wall -Wextra -std=c++17
+	arm-linux-gnueabihf-g++ src/pwire-server-lib.cpp -c $(CFLAGS) -O3 $(CXXFLAGS) $(CPPFLAGS) -o build/$(ARCHIVE).o -L ../spwl/lib/build/ -lSPWL -Wall -Wextra -std=c++17
 	arm-linux-gnueabihf-g++ src/logger.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/logger.o -std=c++17
-	arm-linux-gnueabihf-g++  src/LoRaModule.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/LoRaModule.o -lwiringPi -std=c++17
-	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/LoRaModule.o
+	arm-linux-gnueabihf-g++ src/lora-module.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/lora-module.o -lwiringPi -std=c++17
+	arm-linux-gnueabihf-g++ src/redis-service.cpp -c $(CFLAGS) -g $(CXXFLAGS) $(CPPFLAGS) -o build/redis-service.o -lcpp_redis -ltacopie -pthread -std=c++17
+	ar rcs build/$(ARCHIVE).a build/$(ARCHIVE).o build/logger.o build/lora-module.o build/redis-service.o
 
 .PHONY: build_lib build_lib_prod
 

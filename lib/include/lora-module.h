@@ -1,14 +1,17 @@
-#ifndef LIB_INCLUDE_LORAMODULE_H_
-#define LIB_INCLUDE_LORAMODULE_H_
+#ifndef LIB_INCLUDE_LORA_MODULE_H_
+#define LIB_INCLUDE_LORA_MODULE_H_
 
 #include <mutex>
 #include <vector>
 #include <string>
 
 #include <boost/asio.hpp>
+#include "./logger.h"
 
 using SerialPort = boost::asio::serial_port;
 using IOService = boost::asio::io_service;
+using Verbosity = Logger::Verbosity;
+using LogType = Logger::LogType;
 
 class E32{
  private:
@@ -18,6 +21,7 @@ class E32{
   int aux;
   int m0;
   int m1;
+  Logger &logger;
 
   // Default values for module configuration see E32-443T20DC documentation
   // Hex C0
@@ -48,8 +52,11 @@ class E32{
 
   void resetModule();
 
+  void createLogEntry(LogType logType, std::string message, Verbosity v);
+
  public:
-  E32(IOService & io, std::string port, int aux, int m0, int m1);
+  E32(IOService & io, std::string port, int aux, int m0, int m1,
+      Logger &logger);
 
   ~E32();
 
@@ -67,4 +74,4 @@ class E32{
     return bytes_read;
   }
 };
-#endif  // LIB_INCLUDE_LORAMODULE_H_
+#endif  // LIB_INCLUDE_LORA_MODULE_H_

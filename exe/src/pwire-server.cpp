@@ -1,10 +1,6 @@
 #include "../../lib/include/pwire-server-lib.h"
 #include <iostream>
 
-/*void sendToLoRa(const cpp_redis::reply &reply, PwireServer &server) {
-  server.writeToLoRa(reply.as_string());
-}*/
-
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
   std::vector<unsigned char> data{};

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "../include/logger.h"
 
 std::string Logger::generateLogEntry(Logger::LogType logType,
@@ -5,13 +6,13 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
   std::string logTypeString{};
 
   switch (logType) {
-    case info:
+    case INFO:
       logTypeString = "info";
       break;
-    case warning:
+    case WARNING:
       logTypeString = "warn";
       break;
-    case error:
+    case ERROR:
       logTypeString = "err";
       break;
   }
@@ -30,3 +31,20 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
 
   return data;
 }
+
+Logger::Logger(LogCallback callback, Verbosity v, std::string uuid) :
+    callback{callback}, verbosity{v}, uuid(uuid) {
+}
+
+void Logger::push(LogType logType, std::string message, Verbosity level) {
+  if (level <= this->verbosity) {
+    std::string logEntry =
+        Logger::generateLogEntry(logType, message, this->uuid);
+    this->callback(logEntry);
+  }
+}
+
+void Logger::setVerbosity(Verbosity v) {
+  this->verbosity = v;
+}
+

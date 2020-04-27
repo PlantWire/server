@@ -1,10 +1,10 @@
-#include "../include/LoRaModule.h"
+#include "../include/lora-module.h"
 #include <wiringPi.h>
 #include <chrono>
 #include <thread>
 
-E32::E32(IOService & io, std::string port, int aux, int m0, int m1)
-    : sP{io, port}, aux{aux}, m0{m0}, m1{m1} {
+E32::E32(IOService & io, std::string port, int aux, int m0, int m1,
+    Logger &logger) : sP{io, port}, aux{aux}, m0{m0}, m1{m1}, logger{logger} {
   sP.set_option(SerialPort::baud_rate(9600));
   sP.set_option(SerialPort::parity(SerialPort::parity::none));
   sP.set_option(SerialPort::character_size(SerialPort::character_size(8)));
@@ -27,7 +27,16 @@ E32::pinState E32::getAuxState() {
 }
 
 void E32::waitForAux() {
-  while (getAuxState() == E32::pinState::ZERO) {}
+  bool logged = false;
+  while (getAuxState() == E32::pinState::ZERO) {
+    if (!logged) {
+      logged = true;
+      this->createLogEntry(LogType::INFO, "Aux low",
+          Verbosity::HIGHEST);
+    }
+  }
+  this->createLogEntry(LogType::INFO, "Aux high",
+      Verbosity::HIGHEST);
 }
 
 void E32::lockModuleWrite() {
@@ -45,18 +54,26 @@ void E32::setMode(E32::mode mode) {
     case E32::mode::NORMAL:
       digitalWrite(this->m0, E32::pinState::ZERO);
       digitalWrite(this->m1, E32::pinState::ZERO);
+      this->createLogEntry(LogType::INFO, "Mode set to NORMAL",
+          Verbosity::HIGHER);
       break;
     case E32::mode::WAKE_UP:
       digitalWrite(this->m0, E32::pinState::ONE);
       digitalWrite(this->m1, E32::pinState::ZERO);
+      this->createLogEntry(LogType::INFO, "Mode set to WAKE_UP",
+          Verbosity::HIGHER);
       break;
     case E32::mode::POWER_SAVING:
       digitalWrite(this->m0, E32::pinState::ZERO);
       digitalWrite(this->m1, E32::pinState::ONE);
+      this->createLogEntry(LogType::INFO, "Mode set to POWER_SAVING",
+          Verbosity::HIGHER);
       break;
     case E32::mode::SLEEP:
       digitalWrite(this->m0, E32::pinState::ONE);
       digitalWrite(this->m1, E32::pinState::ONE);
+      this->createLogEntry(LogType::INFO, "Mode set to SLEEP/PROGRAM",
+          Verbosity::HIGHER);
       break;
   }
   waitForAux();
@@ -64,6 +81,8 @@ void E32::setMode(E32::mode mode) {
 
 void E32::writeConfig() {
   lockModuleWrite();
+  this->createLogEntry(LogType::INFO, "Begin writing Configuration",
+      Verbosity::HIGHER);
   setMode(E32::mode::SLEEP);
 
   std::array<unsigned char, 6> config{};
@@ -81,16 +100,27 @@ void E32::writeConfig() {
 
   setMode(E32::mode::NORMAL);
   releaseModuleWrite();
+  this->createLogEntry(LogType::INFO, "Configuration has been written",
+      Verbosity::HIGHER);
 }
 
 void E32::resetModule() {
   // Only use when module locked by thread
+  this->createLogEntry(LogType::INFO, "Begin Module reset",
+      Verbosity::HIGHER);
   std::array<unsigned char, 3> resetCommand{};
   resetCommand[0] = 0xC4;
   resetCommand[1] = 0xC4;
   resetCommand[2] = 0xC4;
   boost::asio::write(sP, boost::asio::buffer(resetCommand));
   waitForAux();
+  this->createLogEntry(LogType::INFO, "Module has been reset",
+      Verbosity::HIGHER);
+}
+
+void E32::createLogEntry(Logger::LogType logType, std::string message,
+    Logger::Verbosity v) {
+  this->logger.push(logType, "[LoRa] " + message, v);
 }
 
 E32::~E32() {
