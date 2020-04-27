@@ -27,6 +27,8 @@ build_prod:
   image: gitlab.dev.ifs.hsr.ch:45023/epj/2020/pwire/pwire-server:exe
   only:
     - master
+  before_script:
+    - cp exe/libwiringPi.a /usr/arm-linux-gnueabihf/lib/
   script:
     - make build_lib_prod
     - make build_prod

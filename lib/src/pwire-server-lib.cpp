@@ -9,7 +9,7 @@ using IOService = boost::asio::io_service;
 using connect_state = cpp_redis::connect_state;
 
 PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : lora{inputIo, port, 0, 0, 0}, uuid{uuid} {
+    : uuid{uuid}, lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2} {
   subConnect();
   clientConnect();
 
@@ -26,6 +26,7 @@ PwireServer::~PwireServer() {
 
 void PwireServer::
 registerFrontendListener(const subscribe_callback_t &callback) {
+  createLogEntry(Logger::LogType::info, "Register called");
   sub.subscribe("pwire-server",
                 [this, callback](const std::string &channel,
                                  const std::string &msg) {
@@ -39,18 +40,19 @@ void PwireServer::pushToFrontend(std::string data) {
   client.commit();
 }
 
-void PwireServer::writeToLoRa(SPWLPackage data) {
+void PwireServer::writeToLoRa(SPWLPacket data) {
   auto temp = data.rawData();
-  lora.send(temp, data.rawDataSize());
+  this->lora.send(temp, data.rawDataSize());
+  createLogEntry(Logger::LogType::info, "Message sent");
 }
 
 void PwireServer::readPreamble() {
   std::array<unsigned char, 1> inputBuffer{};
   size_t count = 0;
-  while (count < SPWLPackage::PREAMBLESIZE) {
+  while (count < SPWLPacket::PREAMBLESIZE) {
     size_t bytes_read = this->lora.receive(inputBuffer, 1);
     // ToDo(ckirchme): Error handling try catch
-    if (bytes_read == 1 && inputBuffer.at(0) == SPWLPackage::PREAMBLE[count]) {
+    if (bytes_read == 1 && inputBuffer.at(0) == SPWLPacket::PREAMBLE[count]) {
       count++;
     } else if (bytes_read > 0) {
       count = 0;
@@ -58,40 +60,48 @@ void PwireServer::readPreamble() {
   }
 }
 
-std::array<unsigned char, SPWLPackage::HEADERSIZE> PwireServer::readHeader() {
-  std::array<unsigned char, SPWLPackage::HEADERSIZE> header{};
-  this->lora.receive(header, SPWLPackage::HEADERSIZE);
+std::array<unsigned char, SPWLPacket::HEADERSIZE> PwireServer::readHeader() {
+  std::array<unsigned char, SPWLPacket::HEADERSIZE> header{};
+  this->lora.receive(header, SPWLPacket::HEADERSIZE);
   // ToDo(ckirchme): Error handling (bytes read etc) Timeout?
   return header;
 }
 
-std::array<unsigned char, SPWLPackage::MAXDATASIZE>
-      PwireServer::readData(uint16_t dataLength) {
-  std::array<unsigned char, SPWLPackage::MAXDATASIZE> data{};
-    this->lora.receive<SPWLPackage::MAXDATASIZE>(data, dataLength);
-    return data;
+std::array<unsigned char, SPWLPacket::MAXDATASIZE>
+    PwireServer::readData(uint16_t dataLength) {
+  std::array<unsigned char, SPWLPacket::MAXDATASIZE> data{};
+  this->lora.receive(data, dataLength);
+  return data;
 }
 
-std::array<unsigned char, SPWLPackage::PACKETSIZE> gluePacket(
-    std::array<unsigned char, SPWLPackage::HEADERSIZE>  header,
-    std::array<unsigned char, SPWLPackage::MAXDATASIZE> data,
-    uint16_t dataLenght) {
-  std::array<unsigned char, SPWLPackage::PACKETSIZE> packet{};
+std::array<unsigned char, SPWLPacket::CHECKSUMSIZE>
+    PwireServer::readChecksum() {
+  std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> checksum{};
+  this->lora.receive(checksum, SPWLPacket::CHECKSUMSIZE);
+  return checksum;
+}
 
+std::array<unsigned char, SPWLPacket::PACKETSIZE> gluePacket(
+    std::array<unsigned char, SPWLPacket::HEADERSIZE>  header,
+    std::array<unsigned char, SPWLPacket::MAXDATASIZE> data,
+    uint16_t dataLength,
+    std::array<unsigned char, SPWLPacket::CHECKSUMSIZE> checksum) {
+
+  std::array<unsigned char, SPWLPacket::PACKETSIZE> packet{};
   size_t count = 0;
   std::generate(packet.begin(),
-      packet.begin() + SPWLPackage::PREAMBLESIZE, [count]() mutable {
-    auto res = SPWLPackage::PREAMBLE[count];
+      packet.begin() + SPWLPacket::PREAMBLESIZE, [count]() mutable {
+    auto res = SPWLPacket::PREAMBLE[count];
     count++;
     return res;
   });
 
   auto packetIt = std::copy(header.cbegin(), header.cend(),
-      packet.begin() + SPWLPackage::PREAMBLESIZE);
-  packetIt = std::copy(data.cbegin(), data.cend(), packetIt);
+      packet.begin() + SPWLPacket::PREAMBLESIZE);
+  packetIt = std::copy(data.cbegin(), data.cbegin() + dataLength, packetIt);
+  packetIt = std::copy(checksum.cbegin(), checksum.cend(), packetIt);
 
-  packet[SPWLPackage::PREAMBLESIZE + SPWLPackage::HEADERSIZE + dataLenght] =
-      SPWLPackage::TRAILER;
+  *packetIt = SPWLPacket::TRAILER;
 
   return packet;
 }
@@ -99,16 +109,19 @@ std::array<unsigned char, SPWLPackage::PACKETSIZE> gluePacket(
 void PwireServer::readFromLoRa(read_handler_t &&handler) {
   readPreamble();
   auto header = readHeader();
-  uint16_t dataLength = SPWLPackage::getLengthFromHeader(header);
+  uint16_t dataLength = SPWLPacket::getLengthFromHeader(header);
 
-  if (dataLength > 0 && dataLength < SPWLPackage::MAXDATASIZE) {
+  if (dataLength > 0 && dataLength < SPWLPacket::MAXDATASIZE) {
     auto data = readData(dataLength);
-    auto packet = gluePacket(header, data, dataLength);
+    auto checksum = readChecksum();
+    auto packet = gluePacket(header, data, dataLength, checksum);
 
-    std::pair<SPWLPackage, bool> result = SPWLPackage::
-    encapsulatePackage(packet);
+    std::pair<SPWLPacket, bool> result = SPWLPacket::
+    encapsulatePacket(packet);
     if (result.second) {
       handler(result.first, *this);
+      createLogEntry(Logger::LogType::info, "Message received");
+      return;
     } else {
       // ToDo(ckirchme): Error handling
       // handler(result.first, *this);
