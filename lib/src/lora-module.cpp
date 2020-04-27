@@ -50,6 +50,8 @@ void E32::releaseModuleWrite() {
 
 void E32::setMode(E32::mode mode) {
   // Only use when module locked by thread
+  waitForAux();
+  std::this_thread::sleep_for(std::chrono::milliseconds(2));
   switch (mode) {
     case E32::mode::NORMAL:
       digitalWrite(this->m0, E32::pinState::ZERO);
@@ -76,6 +78,7 @@ void E32::setMode(E32::mode mode) {
           Verbosity::HIGHER);
       break;
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   waitForAux();
 }
 
