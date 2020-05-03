@@ -102,13 +102,14 @@ PacketContainer PwireServer::gluePacket(
 
 void PwireServer::readFromLoRa(read_handler_t handler) {
   readPreamble();
-  auto header = readHeader();
-  uint16_t dataLength = SPWLPacket::getLengthFromHeader(header);
 
-  if (dataLength > 0 && dataLength < SPWLPacket::MAXDATASIZE) {
-    auto data = readData(dataLength);
+  auto rawHeader = readHeader();
+  SPWLHeader header = SPWLPacket::getHeaderFromRaw(rawHeader);
+
+  if (header.dataSize > 0 && header.dataSize < SPWLPacket::MAXDATASIZE) {
+    auto data = readData(header.dataSize);
     auto checksum = readChecksum();
-    auto packet = gluePacket(header, data, dataLength, checksum);
+    auto packet = gluePacket(rawHeader, data, header.dataSize, checksum);
 
     std::pair<SPWLPacket, bool> result = SPWLPacket::encapsulatePacket(packet);
     this->createLogEntry(LogType::INFO, "Packet created", Verbosity::HIGHER);
