@@ -37,4 +37,6 @@ build_prod:
       - pwire-server      
 deploy:
   stage: deploy
+  only:
+    - master
   trigger: epj/2020/pwire/pwire-installer
