@@ -4,15 +4,15 @@
 
 using connect_state = cpp_redis::connect_state;
 
-PwireServer::PwireServer(IOService &inputIo, std::string port, std::string uuid)
-    : uuid{uuid},
+PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config)
+    : config{config},
     logger{
       [this](std::string message) {
         this->redis.push("pwire-frontend", message);
-      }, Verbosity::HIGHEST, this->uuid
+      }, Verbosity::HIGHEST, this->config.uuid
     },
     redis{this->logger},
-    lora{inputIo, port, /*A6*/1, /*A3*/3, /*A2*/2, this->logger} {
+    lora{inputIo, config.lora_device, config.lora_aux, config.lora_m0, config.lora_m1, this->logger} {
   this->createLogEntry(LogType::INFO, "pWire Server initialized",
       Verbosity::NORMAL);
 }
@@ -133,4 +133,30 @@ void PwireServer::readFromLoRa(read_handler_t handler) {
 void PwireServer::createLogEntry(LogType logType, std::string message,
     Verbosity v) {
   this->logger.push(logType, "[Server] " + message, v);
+}
+
+PwireServerConfig
+    PwireServer::parseConfig(std::string path) {
+  try{
+    boost::property_tree::ptree pt;
+    boost::property_tree::ini_parser::read_ini(path, pt);
+    PwireServerConfig config{};
+
+    config.uuid = pt.get<std::string>("general.uuid");
+    config.redis_host = pt.get<std::string>("redis.host");
+    config.redis_port = pt.get<uint16_t>("redis.port");
+    config.redis_password = pt.get<std::string>("redis.password");
+    config.lora_device = pt.get<std::string>("lora.serial_device");
+    config.lora_aux = pt.get<uint8_t>("lora.aux_pin");
+    config.lora_m0 = pt.get<uint8_t>("lora.m0_pin");
+    config.lora_m1 = pt.get<uint8_t>("lora.m1_pin");
+
+    return config;
+  } catch(boost::wrapexcept<boost::property_tree::ptree_bad_path> & e) {
+    std::cout << "Configuration error: \"" + std::string{e.what()} << '"' << '\n';
+    exit (EXIT_FAILURE);
+  } catch(boost::wrapexcept<boost::property_tree::ini_parser::ini_parser_error> & e) {
+    std::cout << "Configuration error: \"" + std::string{e.what()} << '"' << '\n';
+    exit (EXIT_FAILURE);
+  }
 }
