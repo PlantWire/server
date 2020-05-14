@@ -1,5 +1,7 @@
 #include "../include/redis-service.h"
-RedisService::RedisService(Logger &logger) : logger{logger} {
+RedisService::RedisService(std::string host, uint16_t port, Logger &logger) : logger{logger} {
+  this->host = host;
+  this->port = port;
   this->clientConnect();
   this->subConnect();
 }
@@ -10,7 +12,7 @@ RedisService::~RedisService() {
 }
 
 void RedisService::clientConnect() {
-  this->client.connect("127.0.0.1", 6379,
+  this->client.connect(this->host, this->port,
       [this](const std::string &host, std::size_t port,
             connect_state status) {
         if (status == connect_state::ok) {
@@ -26,7 +28,7 @@ void RedisService::clientConnect() {
 }
 
 void RedisService::subConnect() {
-  this->sub.connect("127.0.0.1", 6379,
+  this->sub.connect(this->host, this->port,
       [this](const std::string &host, std::size_t port,
              connect_state status) {
         if (status == connect_state::ok) {

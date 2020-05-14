@@ -11,7 +11,7 @@ PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config)
         this->redis.push("pwire-frontend", message);
       }, Verbosity::HIGHEST, this->config.uuid
     },
-    redis{this->logger},
+    redis{config.redis_host, config.redis_port, this->logger},
     lora{inputIo, config.lora_device, config.lora_aux, config.lora_m0, config.lora_m1, this->logger} {
   this->createLogEntry(LogType::INFO, "pWire Server initialized",
       Verbosity::NORMAL);

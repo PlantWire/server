@@ -1,8 +1,4 @@
 #include "../../lib/include/pwire-server-lib.h"
-#include <iostream>
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
@@ -12,7 +8,8 @@ void subscriptionCallback(const std::string &channel, const std::string &msg,
   if (result.second) {
     server.writeToLoRa(result.first);
   } else {
-    // ToDo(ckirchme): Log data to big error
+    server.createLogEntry(LogType::ERROR, "Input data to big",
+        Verbosity::NORMAL);
   }
 }
 

@@ -15,6 +15,8 @@ typedef std::function<void(const std::string &channel,
 
 class RedisService {
  private:
+  std::string host;
+  uint16_t port;
   cpp_redis::subscriber sub;
   cpp_redis::client client;
   Logger &logger;
@@ -23,7 +25,7 @@ class RedisService {
   void subConnect();
   void createLogEntry(LogType logType, std::string message, Verbosity v);
  public:
-  explicit RedisService(Logger &logger);
+  RedisService(std::string host, uint16_t port, Logger &logger);
   ~RedisService();
   void push(std::string channel, std::string data);
   void subscribe(std::string channel, subscribe_callback_t callback);

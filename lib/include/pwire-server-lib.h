@@ -55,8 +55,10 @@ class PwireServer {
 
   void readFromLoRa(read_handler_t callback);
 
-  static PwireServerConfig parseConfig(std::string path);
+  void createLogEntry(Logger::LogType logType, std::string message,
+                      Logger::Verbosity v);
 
+  static PwireServerConfig parseConfig(std::string path);
  private:
   PwireServerConfig config;
   // Has to be before E32 and redis for initialization ordering
@@ -73,9 +75,6 @@ class PwireServer {
       DataContainer data,
       uint16_t dataLength,
       ChecksumContainer checksum);
-
-  void createLogEntry(Logger::LogType logType, std::string message,
-      Logger::Verbosity v);
 };
 
 
