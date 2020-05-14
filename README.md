@@ -3,7 +3,22 @@
 [![coverage report](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/badges/master/coverage.svg)](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/commits/master)
 ## For Users:
 [Latest Build](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/jobs/artifacts/master/raw/exe/build/pwire-server?job=build_prod)
-
+### Configuration
+The Server has to be configured by the `config.ini` file which has to be located in the same directory as the executable.
+The file looks like this:
+```ini
+[general]
+uuid = {{uuid}}
+[redis]
+host = 127.0.0.1
+port = 6379
+password = {{redis_password}}
+[lora]
+serial_device = /dev/ttyS1
+aux_pin = 1
+m0_pin = 3
+m1_pin = 2
+```
 ## For Developers:
 
 ### Requirements:
