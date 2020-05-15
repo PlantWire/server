@@ -4,14 +4,15 @@
 
 using connect_state = cpp_redis::connect_state;
 
-PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config)
-    : config{config},
+PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config,
+    std::ostream & terminal) : config{config},
     logger{
       [this](std::string message) {
         this->redis.push("pwire-frontend", message);
-      }, Verbosity::HIGHEST, this->config.uuid
+      }, Verbosity::HIGHEST, this->config.uuid, terminal
     },
-    redis{config.redis_host, config.redis_port, this->logger},
+    redis{config.redis_host, config.redis_port, config.redis_password,
+          this->logger},
     lora{inputIo, config.lora_device, config.lora_aux, config.lora_m0, config.lora_m1, this->logger} {
   this->createLogEntry(LogType::INFO, "pWire Server initialized",
       Verbosity::NORMAL);
@@ -131,12 +132,15 @@ void PwireServer::readFromLoRa(read_handler_t handler) {
 }
 
 void PwireServer::createLogEntry(LogType logType, std::string message,
-    Verbosity v) {
+    Verbosity v, bool terminal) {
+  if(terminal) {
+    this->logger.pushToTerminal(logType, "[Server] " + message, v);
+  }
   this->logger.push(logType, "[Server] " + message, v);
 }
 
 PwireServerConfig
-    PwireServer::parseConfig(std::string path) {
+    PwireServer::parseConfig(std::string path, std::ostream & terminal) {
   try{
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini(path, pt);
@@ -153,10 +157,12 @@ PwireServerConfig
 
     return config;
   } catch(boost::wrapexcept<boost::property_tree::ptree_bad_path> & e) {
-    std::cout << "Configuration error: \"" + std::string{e.what()} << '"' << '\n';
+    Logger::pushToTerminal(LogType::ERROR,
+        "Configuration error: \"" + std::string{e.what()} + "\"", terminal);
     exit (EXIT_FAILURE);
   } catch(boost::wrapexcept<boost::property_tree::ini_parser::ini_parser_error> & e) {
-    std::cout << "Configuration error: \"" + std::string{e.what()} << '"' << '\n';
+    Logger::pushToTerminal(LogType::ERROR,
+      "Configuration error: \"" + std::string{e.what()}  + "\"", terminal);
     exit (EXIT_FAILURE);
   }
 }

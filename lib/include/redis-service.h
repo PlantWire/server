@@ -4,6 +4,7 @@
 #include <cpp_redis/cpp_redis>
 #include <tacopie/tacopie>
 #include <string>
+
 #include "./logger.h"
 
 using connect_state = cpp_redis::connect_state;
@@ -17,15 +18,18 @@ class RedisService {
  private:
   std::string host;
   uint16_t port;
+  std::string password;
   cpp_redis::subscriber sub;
   cpp_redis::client client;
   Logger &logger;
 
   void clientConnect();
   void subConnect();
-  void createLogEntry(LogType logType, std::string message, Verbosity v);
+  void createLogEntry(LogType logType, std::string message, Verbosity v,
+      bool terminal = false);
  public:
-  RedisService(std::string host, uint16_t port, Logger &logger);
+  RedisService(std::string host, uint16_t port, std::string password,
+      Logger &logger);
   ~RedisService();
   void push(std::string channel, std::string data);
   void subscribe(std::string channel, subscribe_callback_t callback);

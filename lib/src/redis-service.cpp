@@ -1,7 +1,9 @@
 #include "../include/redis-service.h"
-RedisService::RedisService(std::string host, uint16_t port, Logger &logger) : logger{logger} {
+RedisService::RedisService(std::string host, uint16_t port,
+    std::string password, Logger &logger) : logger{logger} {
   this->host = host;
   this->port = port;
+  this->password = password;
   this->clientConnect();
   this->subConnect();
 }
@@ -25,6 +27,15 @@ void RedisService::clientConnect() {
           // TODO(ckirchme): Handle no reconnect possible
         }
       });
+  if(this->password != "") {
+    this->client.auth(this->password, [this](const cpp_redis::reply& reply) {
+          if (reply.is_error()) {
+            this->createLogEntry(LogType::ERROR, "Authentication failed",
+                Verbosity::NORMAL, true);
+            exit (EXIT_FAILURE);
+          }
+        });
+  }
 }
 
 void RedisService::subConnect() {
@@ -41,11 +52,24 @@ void RedisService::subConnect() {
           // TODO(ckirchme): Handle no reconnect possible
         }
       });
+  if(this->password != "") {
+    this->sub.auth(this->password, [this](const cpp_redis::reply& reply) {
+          if (reply.is_error()) {
+            this->createLogEntry(LogType::ERROR, "Authentication failed",
+                Verbosity::NORMAL, true);
+            exit (EXIT_FAILURE);
+          }
+        });
+  }
 }
 
 void RedisService::createLogEntry(LogType logType, std::string message,
-    Verbosity v) {
-  this->logger.push(logType, "[Redis] " + message, v);
+    Verbosity v, bool terminal) {
+  if(terminal) {
+    this->logger.pushToTerminal(logType, "[Redis] " + message, v);
+  } else {
+    this->logger.push(logType, "[Redis] " + message, v);
+  }
 }
 
 void RedisService::push(std::string channel, std::string data) {

@@ -44,7 +44,7 @@ typedef struct {
 
 class PwireServer {
  public:
-  PwireServer(IOService &io, PwireServerConfig config);
+  PwireServer(IOService &io, PwireServerConfig config, std::ostream & terminal);
 
   void
   registerFrontendListener(const pwire_subscribe_callback_t &callback);
@@ -56,9 +56,10 @@ class PwireServer {
   void readFromLoRa(read_handler_t callback);
 
   void createLogEntry(Logger::LogType logType, std::string message,
-                      Logger::Verbosity v);
+                      Logger::Verbosity v, bool terminal = false);
 
-  static PwireServerConfig parseConfig(std::string path);
+  static PwireServerConfig parseConfig(std::string path,
+      std::ostream & terminal);
  private:
   PwireServerConfig config;
   // Has to be before E32 and redis for initialization ordering

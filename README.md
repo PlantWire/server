@@ -4,7 +4,7 @@
 ## For Users:
 [Latest Build](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/jobs/artifacts/master/raw/exe/build/pwire-server?job=build_prod)
 ### Configuration
-The Server has to be configured by the `config.ini` file which has to be located in the same directory as the executable.
+The Server has to be configured by the `pwire-server.cfg` file which has to be located in the same directory as the executable.
 The file looks like this:
 ```ini
 [general]
@@ -19,6 +19,8 @@ aux_pin = 1
 m0_pin = 3
 m1_pin = 2
 ```
+Should redis not need a password leave the password option value empty: `password = `
+
 ## For Developers:
 
 ### Requirements:

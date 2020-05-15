@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../../lib/include/pwire-server-lib.h"
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
@@ -21,10 +22,11 @@ void readCallback(SPWLPacket packet, PwireServer &server) {
 }
 
 int main() {
-  PwireServerConfig config = PwireServer::parseConfig("config.ini");
-
+  PwireServerConfig config =
+      PwireServer::parseConfig("pwire-server.cfg", std::cout);
   boost::asio::io_service io{};
-  PwireServer server{io, config};
+
+  PwireServer server{io, config, std::cout};
   server.registerFrontendListener(subscriptionCallback);
   server.readFromLoRa(readCallback);
   io.run();
