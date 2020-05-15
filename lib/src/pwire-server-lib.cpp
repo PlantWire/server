@@ -157,12 +157,11 @@ PwireServerConfig
     config.lora_m1 = pt.get<uint8_t>("lora.m1_pin");
 
     return config;
-  } catch(boost::wrapexcept<boost::property_tree::ptree_bad_path> & e) {
+  } catch(boost::property_tree::ptree_bad_path & e) {
     Logger::pushToTerminal(LogType::ERROR,
         "Configuration error: \"" + std::string {e.what()} + "\"", terminal);
     exit(EXIT_FAILURE);
-  } catch(boost::wrapexcept<boost::property_tree::ini_parser::ini_parser_error>
-      & e) {
+  } catch(boost::property_tree::ini_parser::ini_parser_error & e) {
     Logger::pushToTerminal(LogType::ERROR,
       "Configuration error: \"" + std::string {e.what()}  + "\"", terminal);
     exit(EXIT_FAILURE);
