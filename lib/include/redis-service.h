@@ -16,6 +16,9 @@ typedef std::function<void(const std::string &channel,
 
 class RedisService {
  private:
+  static constexpr char REDIS_NO_PASSWORD_SET_ERROR[] =
+      "ERR Client sent AUTH, but no password is set";
+
   std::string host;
   uint16_t port;
   std::string password;

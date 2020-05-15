@@ -60,6 +60,7 @@ class PwireServer {
 
   static PwireServerConfig parseConfig(std::string path,
       std::ostream & terminal);
+
  private:
   PwireServerConfig config;
   // Has to be before E32 and redis for initialization ordering

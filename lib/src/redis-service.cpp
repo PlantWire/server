@@ -27,15 +27,15 @@ void RedisService::clientConnect() {
           // TODO(ckirchme): Handle no reconnect possible
         }
       });
-  if(this->password != "") {
-    this->client.auth(this->password, [this](const cpp_redis::reply& reply) {
-          if (reply.is_error()) {
+  this->client.auth(this->password, [this](const cpp_redis::reply& reply) {
+        if (reply.is_error()) {
+          if (reply.error() != REDIS_NO_PASSWORD_SET_ERROR) {
             this->createLogEntry(LogType::ERROR, "Authentication failed",
                 Verbosity::NORMAL, true);
-            exit (EXIT_FAILURE);
+            exit(EXIT_FAILURE);
           }
-        });
-  }
+        }
+      });
 }
 
 void RedisService::subConnect() {
@@ -52,20 +52,20 @@ void RedisService::subConnect() {
           // TODO(ckirchme): Handle no reconnect possible
         }
       });
-  if(this->password != "") {
-    this->sub.auth(this->password, [this](const cpp_redis::reply& reply) {
-          if (reply.is_error()) {
+  this->sub.auth(this->password, [this](const cpp_redis::reply& reply) {
+        if (reply.is_error()) {
+          if (reply.error() != REDIS_NO_PASSWORD_SET_ERROR) {
             this->createLogEntry(LogType::ERROR, "Authentication failed",
                 Verbosity::NORMAL, true);
-            exit (EXIT_FAILURE);
+            exit(EXIT_FAILURE);
           }
-        });
-  }
+        }
+      });
 }
 
 void RedisService::createLogEntry(LogType logType, std::string message,
     Verbosity v, bool terminal) {
-  if(terminal) {
+  if (terminal) {
     this->logger.pushToTerminal(logType, "[Redis] " + message, v);
   } else {
     this->logger.push(logType, "[Redis] " + message, v);

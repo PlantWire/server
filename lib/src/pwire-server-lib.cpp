@@ -13,7 +13,8 @@ PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config,
     },
     redis{config.redis_host, config.redis_port, config.redis_password,
           this->logger},
-    lora{inputIo, config.lora_device, config.lora_aux, config.lora_m0, config.lora_m1, this->logger} {
+    lora{inputIo, config.lora_device, config.lora_aux, config.lora_m0,
+         config.lora_m1, this->logger} {
   this->createLogEntry(LogType::INFO, "pWire Server initialized",
       Verbosity::NORMAL);
 }
@@ -133,7 +134,7 @@ void PwireServer::readFromLoRa(read_handler_t handler) {
 
 void PwireServer::createLogEntry(LogType logType, std::string message,
     Verbosity v, bool terminal) {
-  if(terminal) {
+  if (terminal) {
     this->logger.pushToTerminal(logType, "[Server] " + message, v);
   }
   this->logger.push(logType, "[Server] " + message, v);
@@ -141,7 +142,7 @@ void PwireServer::createLogEntry(LogType logType, std::string message,
 
 PwireServerConfig
     PwireServer::parseConfig(std::string path, std::ostream & terminal) {
-  try{
+  try {
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini(path, pt);
     PwireServerConfig config{};
@@ -158,11 +159,12 @@ PwireServerConfig
     return config;
   } catch(boost::wrapexcept<boost::property_tree::ptree_bad_path> & e) {
     Logger::pushToTerminal(LogType::ERROR,
-        "Configuration error: \"" + std::string{e.what()} + "\"", terminal);
-    exit (EXIT_FAILURE);
-  } catch(boost::wrapexcept<boost::property_tree::ini_parser::ini_parser_error> & e) {
+        "Configuration error: \"" + std::string {e.what()} + "\"", terminal);
+    exit(EXIT_FAILURE);
+  } catch(boost::wrapexcept<boost::property_tree::ini_parser::ini_parser_error>
+      & e) {
     Logger::pushToTerminal(LogType::ERROR,
-      "Configuration error: \"" + std::string{e.what()}  + "\"", terminal);
-    exit (EXIT_FAILURE);
+      "Configuration error: \"" + std::string {e.what()}  + "\"", terminal);
+    exit(EXIT_FAILURE);
   }
 }

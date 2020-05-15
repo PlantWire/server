@@ -19,7 +19,8 @@ aux_pin = 1
 m0_pin = 3
 m1_pin = 2
 ```
-Should redis not need a password leave the password option value empty: `password = `
+Should redis not require a password leave the password option value empty: `password = `. You can theoretically write
+anything as value since it is ignored if not needed.
 
 ## For Developers:
 

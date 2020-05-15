@@ -3,7 +3,7 @@
 #include <ctime>
 #include "../include/logger.h"
 
-std::string Logger::logTypeToString(Logger::LogType logType){
+std::string Logger::logTypeToString(Logger::LogType logType) {
   std::string logTypeString{};
 
   switch (logType) {
@@ -21,9 +21,10 @@ std::string Logger::logTypeToString(Logger::LogType logType){
   return logTypeString;
 }
 
-std::string Logger::getTimeString(){
+std::string Logger::getTimeString() {
   time_t now = time(0);
-  tm *ltm = localtime(&now);
+  tm ltm{};
+  localtime_r(&now, &ltm);
 
   std::string day;
   std::string month;
@@ -33,39 +34,39 @@ std::string Logger::getTimeString(){
   std::string minute;
   std::string second;
 
-  if(ltm->tm_mon < 10) {
-    month = "0" + std::to_string(1 + ltm->tm_mon);
+  if (ltm.tm_mon < 10) {
+    month = "0" + std::to_string(1 + ltm.tm_mon);
   } else {
-    month = std::to_string(1 + ltm->tm_mon);
+    month = std::to_string(1 + ltm.tm_mon);
   }
 
-  if(ltm->tm_mday < 10) {
-    day = "0" + std::to_string(ltm->tm_mday);
+  if (ltm.tm_mday < 10) {
+    day = "0" + std::to_string(ltm.tm_mday);
   } else {
-    day = std::to_string(ltm->tm_mday);
+    day = std::to_string(ltm.tm_mday);
   }
 
-  if(ltm->tm_hour < 10) {
-    hour = "0" + std::to_string(ltm->tm_hour);
+  if (ltm.tm_hour < 10) {
+    hour = "0" + std::to_string(ltm.tm_hour);
   } else {
-    hour = std::to_string(ltm->tm_hour);
+    hour = std::to_string(ltm.tm_hour);
   }
 
-  if(ltm->tm_min < 10) {
-    minute = "0" + std::to_string(ltm->tm_min);
+  if (ltm.tm_min < 10) {
+    minute = "0" + std::to_string(ltm.tm_min);
   } else {
-    minute = std::to_string(ltm->tm_min);
+    minute = std::to_string(ltm.tm_min);
   }
 
-  if(ltm->tm_sec < 10) {
-    second = "0" + std::to_string(ltm->tm_sec);
+  if (ltm.tm_sec < 10) {
+    second = "0" + std::to_string(ltm.tm_sec);
   } else {
-    second = std::to_string(ltm->tm_sec);
+    second = std::to_string(ltm.tm_sec);
   }
 
 
   std::string date {day + "-" + month + "-" +
-    std::to_string(1900 + ltm->tm_year) + " " + hour + ":" + minute + ":" +
+    std::to_string(1900 + ltm.tm_year) + " " + hour + ":" + minute + ":" +
     second};
 
   return date;
@@ -124,7 +125,7 @@ void Logger::setVerbosity(Verbosity v) {
 }
 
 void Logger::pushToTerminal(LogType logType, std::string message,
-    std::ostream & terminal){
+    std::ostream & terminal) {
   terminal << Logger::generateTerminalLogEntry(logType, message) << std::endl;
 }
 
