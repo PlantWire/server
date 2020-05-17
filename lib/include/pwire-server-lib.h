@@ -6,6 +6,8 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include "../../spwl/lib/include/SPWL.h"
 #include "./redis-service.h"
@@ -29,9 +31,20 @@ typedef std::function<void(const std::string &channel,
 typedef std::function<void(SPWLPacket packet,
                            PwireServer &server)> read_handler_t;
 
+typedef struct {
+  std::string uuid;
+  std::string redis_host;
+  uint16_t redis_port;
+  std::string redis_password;
+  std::string lora_device;
+  uint8_t lora_aux;
+  uint8_t lora_m0;
+  uint8_t lora_m1;
+} PwireServerConfig;
+
 class PwireServer {
  public:
-  PwireServer(IOService &io, std::string port, std::string uuid);
+  PwireServer(IOService &io, PwireServerConfig config, std::ostream & terminal);
 
   void
   registerFrontendListener(const pwire_subscribe_callback_t &callback);
@@ -42,8 +55,14 @@ class PwireServer {
 
   void readFromLoRa(read_handler_t callback);
 
+  void createLogEntry(Logger::LogType logType, std::string message,
+                      Logger::Verbosity v, bool terminal = false);
+
+  static PwireServerConfig parseConfig(std::string path,
+      std::ostream & terminal);
+
  private:
-  std::string uuid;
+  PwireServerConfig config;
   // Has to be before E32 and redis for initialization ordering
   Logger logger;
   RedisService redis;
@@ -58,9 +77,6 @@ class PwireServer {
       DataContainer data,
       uint16_t dataLength,
       ChecksumContainer checksum);
-
-  void createLogEntry(Logger::LogType logType, std::string message,
-      Logger::Verbosity v);
 };
 
 

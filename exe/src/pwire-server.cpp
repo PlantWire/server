@@ -1,5 +1,5 @@
-#include "../../lib/include/pwire-server-lib.h"
 #include <iostream>
+#include "../../lib/include/pwire-server-lib.h"
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
                           PwireServer &server) {
@@ -9,7 +9,8 @@ void subscriptionCallback(const std::string &channel, const std::string &msg,
   if (result.second) {
     server.writeToLoRa(result.first);
   } else {
-    // ToDo(ckirchme): Log data to big error
+    server.createLogEntry(LogType::ERROR, "Input data to big",
+        Verbosity::NORMAL);
   }
 }
 
@@ -21,8 +22,11 @@ void readCallback(SPWLPacket packet, PwireServer &server) {
 }
 
 int main() {
+  PwireServerConfig config =
+      PwireServer::parseConfig("pwire-server.cfg", std::cout);
   boost::asio::io_service io{};
-  PwireServer server{io, "/dev/ttyS1", "fe2c15fc-85d2-4691-be70-f4adb326a334"};
+
+  PwireServer server{io, config, std::cout};
   server.registerFrontendListener(subscriptionCallback);
   server.readFromLoRa(readCallback);
   io.run();
