@@ -78,12 +78,12 @@ std::string Logger::generateLogEntry(Logger::LogType logType,
 
   std::string data {
     "{"
-      "\"Type\": \"log\","
-      "\"Sender\": \"" + uuid + "\","
-      "\"Content\":"
+      "\"type\": \"log\","
+      "\"sender\": \"" + uuid + "\","
+      "\"content\":"
         "{"
-          "\"LogType\": \"" + logTypeString + "\","
-          "\"Message\": \"" + message + "\""
+          "\"logType\": \"" + logTypeString + "\","
+          "\"message\": \"" + message + "\""
         "}"
     "}"
   };
