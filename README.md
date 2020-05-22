@@ -73,3 +73,4 @@ pwire Server is dependent on the following libraries:
     }
    ```
 5. Upload to repo (only if 3. and 4. had no errors)
+6. To create an executable manually without CI run `make build_prod`
