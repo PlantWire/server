@@ -1,0 +1,41 @@
+name: C/C++ CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container: python:latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: prepare
+      run: pip install cpplint
+    - name: lint
+      run: make lint
+  test:
+    runs-on: ubuntu-latest
+    container: docker.pkg.github.com/plantwire/server/ci_test:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: test
+        run: |
+          make build_test
+          make run_test
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'ref/head/master' }}
+    container: docker.pkg.github.com/plantwire/server/ci_build:latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: build
+      run: |
+        make build_lib_prod
+        make build_prod
+        cp exe/build/pwire-server .
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: pwire-server
+        path: pwire-server
