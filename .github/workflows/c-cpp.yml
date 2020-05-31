@@ -39,7 +39,7 @@ jobs:
         make build_lib_prod
         make build_prod
         cp exe/build/pwire-server .
-    - run: echo ::set-output name=SERVER_VERSION::'`cat version.txt`
+    - run: echo ::set-output name=SERVER_VERSION::`cat version.txt`
       id: set_version
     - name: Create Release
       id: create_release
