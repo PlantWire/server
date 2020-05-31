@@ -16,7 +16,7 @@ jobs:
       run: make lint
   test:
     runs-on: ubuntu-latest
-    container: docker.pkg.github.com/plantwire/server/ci_test:latest
+    container: vec7or/pwire-server-ci:test
     steps:
       - uses: actions/checkout@v2
       - name: test
@@ -26,7 +26,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ github.ref == 'ref/head/master' }}
-    container: docker.pkg.github.com/plantwire/server/ci_build:latest
+    container: vec7or/pwire-server-ci:build
     steps:
     - uses: actions/checkout@v2
     - name: build
