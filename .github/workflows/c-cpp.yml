@@ -10,8 +10,6 @@ jobs:
     container: python:latest
     steps:
     - uses: actions/checkout@v2
-    - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@2.1.1
     - name: prepare
       run: pip install cpplint
     - name: lint
