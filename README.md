@@ -1,8 +1,7 @@
 # pWire Server
-[![pipeline status](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/badges/master/pipeline.svg)](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/commits/master)
-[![coverage report](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/badges/master/coverage.svg)](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/commits/master)
+![C/C++ CI](https://github.com/PlantWire/server/workflows/C/C++%20CI/badge.svg)
 ## For Users:
-[Latest Build](https://gitlab.dev.ifs.hsr.ch/epj/2020/pwire/pwire-server/-/jobs/artifacts/master/raw/exe/build/pwire-server?job=build_prod)
+Latest build --> ToDo
 ### Configuration
 The Server has to be configured by the `pwire-server.cfg` file which has to be located in the same directory as the executable.
 The file looks like this:
