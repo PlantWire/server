@@ -10,6 +10,8 @@ jobs:
     container: python:latest
     steps:
     - uses: actions/checkout@v2
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@2.1.1
     - name: prepare
       run: pip install cpplint
     - name: lint
@@ -19,6 +21,8 @@ jobs:
     container: vec7or/pwire-server-ci:test
     steps:
       - uses: actions/checkout@v2
+      - name: Checkout submodules
+        uses: textbook/git-checkout-submodule-action@2.1.1
       - name: test
         run: |
           make build_test
@@ -29,6 +33,8 @@ jobs:
     container: vec7or/pwire-server-ci:build
     steps:
     - uses: actions/checkout@v2
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@2.1.1
     - name: build
       run: |
         make build_lib_prod
