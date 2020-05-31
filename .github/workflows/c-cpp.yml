@@ -28,6 +28,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
+    needs: [lint, test]
     container: vec7or/pwire-server-ci:build
     steps:
     - uses: actions/checkout@v2
