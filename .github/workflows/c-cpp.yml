@@ -39,14 +39,16 @@ jobs:
         make build_lib_prod
         make build_prod
         cp exe/build/pwire-server .
+    - name: Set version
+      run: echo '::set-env name=SERVER_VERSION::'`cat version.txt`
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{cat ./version.txt}}
-        release_name: Release ${{cat version.txt}}
+        tag_name: $SERVER_VERSION
+        release_name: Release $SERVER_VERSION
         draft: false
         prerelease: false
     - name: Upload Release Asset
