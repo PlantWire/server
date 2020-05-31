@@ -1,9 +1,9 @@
 #ifndef LIB_INCLUDE_REDIS_SERVICE_H_
 #define LIB_INCLUDE_REDIS_SERVICE_H_
 
+#include <string>
 #include <cpp_redis/cpp_redis>
 #include <tacopie/tacopie>
-#include <string>
 
 #include "./logger.h"
 
