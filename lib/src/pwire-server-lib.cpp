@@ -2,8 +2,6 @@
 
 #include "../include/pwire-server-lib.h"
 
-using connect_state = cpp_redis::connect_state;
-
 PwireServer::PwireServer(IOService &inputIo, PwireServerConfig config,
     std::ostream & terminal) : config{config},
     logger{
@@ -150,7 +148,11 @@ PwireServerConfig
     config.uuid = pt.get<std::string>("general.uuid");
     config.redis_host = pt.get<std::string>("redis.host");
     config.redis_port = pt.get<uint16_t>("redis.port");
-    config.redis_password = pt.get<std::string>("redis.password");
+    try {
+      config.redis_password = pt.get<std::string>("redis.password");
+    } catch (std::exception const & e) {
+      config.redis_password = "";
+    }
     config.lora_device = pt.get<std::string>("lora.serial_device");
     config.lora_aux = pt.get<uint8_t>("lora.aux_pin");
     config.lora_m0 = pt.get<uint8_t>("lora.m0_pin");

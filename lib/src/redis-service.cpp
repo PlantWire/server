@@ -1,66 +1,26 @@
 #include "../include/redis-service.h"
+
+#include <chrono>
+
 RedisService::RedisService(std::string host, uint16_t port,
     std::string password, Logger &logger) : logger{logger} {
-  this->host = host;
-  this->port = port;
-  this->password = password;
-  this->clientConnect();
-  this->subConnect();
+  this->connection_options.host = host;
+  this->connection_options.port = port;
+  this->connection_options.password = password;
+  this->connection_options.socket_timeout = std::chrono::milliseconds{200};
+  this->redis = new sw::redis::Redis{this->connection_options};
+  this->subscriber = new sw::redis::Subscriber{std::move(this->redis->subscriber())};
+  this->subscriberThread = new std::thread(&RedisService::subscriberConsume, this);
 }
 
 RedisService::~RedisService() {
-  this->sub.disconnect();
-  this->client.disconnect();
-}
-
-void RedisService::clientConnect() {
-  this->client.connect(this->host, this->port,
-      [this](const std::string &host, std::size_t port,
-            connect_state status) {
-        if (status == connect_state::ok) {
-          this->createLogEntry(LogType::INFO, "Client connected to " +
-              host + ":" + std::to_string(port), Verbosity::HIGHER);
-        }  else if (status == connect_state::dropped) {
-          this->clientConnect();
-          this->createLogEntry(LogType::WARNING, "Client reconnected",
-              Verbosity::NORMAL);
-          // TODO(ckirchme): Handle no reconnect possible
-        }
-      });
-  this->client.auth(this->password, [this](const cpp_redis::reply& reply) {
-        if (reply.is_error()) {
-          if (reply.error() != REDIS_NO_PASSWORD_SET_ERROR) {
-            this->createLogEntry(LogType::ERROR, "Authentication failed",
-                Verbosity::NORMAL, true);
-            exit(EXIT_FAILURE);
-          }
-        }
-      });
-}
-
-void RedisService::subConnect() {
-  this->sub.connect(this->host, this->port,
-      [this](const std::string &host, std::size_t port,
-             connect_state status) {
-        if (status == connect_state::ok) {
-          this->createLogEntry(LogType::INFO, "Subscriber connected to "
-              + host + ":" + std::to_string(port), Verbosity::HIGHER);
-        } else if (status == connect_state::dropped) {
-          this->subConnect();
-          this->createLogEntry(LogType::WARNING, "Subscriber reconnected",
-              Verbosity::NORMAL);
-          // TODO(ckirchme): Handle no reconnect possible
-        }
-      });
-  this->sub.auth(this->password, [this](const cpp_redis::reply& reply) {
-        if (reply.is_error()) {
-          if (reply.error() != REDIS_NO_PASSWORD_SET_ERROR) {
-            this->createLogEntry(LogType::ERROR, "Authentication failed",
-                Verbosity::NORMAL, true);
-            exit(EXIT_FAILURE);
-          }
-        }
-      });
+  {
+    std::lock_guard<std::mutex> lck{subscriberLock};
+    this->stopped = true;
+  }
+  this->subscriberThread->join();
+  delete(this->subscriber);
+  delete(this->redis);
 }
 
 void RedisService::createLogEntry(LogType logType, std::string message,
@@ -73,12 +33,34 @@ void RedisService::createLogEntry(LogType logType, std::string message,
 }
 
 void RedisService::push(std::string channel, std::string data) {
-  client.publish(channel, {data}, [](cpp_redis::reply &reply) {});
-  client.commit();
+  this->redis->publish(channel, data);
 }
 
 void RedisService::subscribe(std::string channel,
     subscribe_callback_t callback) {
-  this->sub.subscribe(channel, callback);
-  this->sub.commit();
+  this->subscriber->subscribe(channel);
+  this->subscriber->on_message(callback);
+}
+
+void RedisService::subscriberConsume() {
+  while (true) {
+    {
+      std::lock_guard<std::mutex> lck{subscriberLock};
+      if(stopped) {
+        return;
+      }
+      try {
+        this->subscriber->consume();
+        this->redis->publish("pwire-frontend", "Yooo");
+      } catch (sw::redis::TimeoutError const &e) {
+        // Try again.
+        continue;
+      }  catch (sw::redis::Error const &e) {
+        this->createLogEntry(LogType::ERROR,
+                             "Redis subscriber error. Error: " + std::string{e.what()},
+                             Verbosity::NORMAL);
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
