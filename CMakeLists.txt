@@ -124,52 +124,22 @@ target_include_directories(
         ./exe/include/
 )
 
-#target_link_libraries(eOmegaTestAdapterExecutable PRIVATE Threads::Threads)
-#
-#target_link_directories(eOmegaTestAdapterExecutable PRIVATE ${zBleAdapter_lib})
-#target_link_libraries(eOmegaTestAdapterExecutable PRIVATE zBleAdapter0_x86)
-#
-## Testing
-#include(FetchContent)
-#FetchContent_Declare(
-#        googletest
-#        URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-#)
-#set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-#FetchContent_MakeAvailable(googletest)
-#
+INSTALL(TARGETS pWireServerExecutable
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
+
+### Testing
 #enable_testing()
-#
 #add_executable(
 #        unit_tests
-#        test/src/common/helper.cpp
-#        test/src/zwickInterface/interfaceStringAnalyzer.cc
-#        test/src/zwickInterface/interfaceStringBuilder.cc
-#        test/src/medicalInteractionProtocol/messageDispatcherTest.cc
-#        test/src/medicalInteractionProtocol/userMailTest.cc
-#        test/src/eOmegaTestAdapter/pmUartTest.cc
-#        test/src/eOmegaTestAdapter/pmDeviceStatusTest.cc
+#        test/src/pwire-server-test.cpp
 #        ${${PROJECT_NAME}_SOURCES})
-#add_dependencies(unit_tests zBleAdapter)
-#
-#target_link_directories(unit_tests PRIVATE ${zBleAdapter_lib})
-#target_link_libraries(
-#        unit_tests
-#        PRIVATE
-#        gtest_main
-#        gmock_main
-#        zBleAdapter0_x86
-#)
-#
 #target_include_directories(
 #        unit_tests
 #        PRIVATE
-#        ./include
-#        ./test/include
-#        ${zBleAdapter_include}
+#        ./test/include/
+#        ./test/cute
 #)
-#
-#target_compile_options(unit_tests PRIVATE "-DGTEST")
 #
 #target_compile_features(unit_tests PUBLIC
 #        cxx_std_17
@@ -179,14 +149,9 @@ target_include_directories(
 #        CXX_STANDARD_REQUIRED YES
 #        CXX_EXTENSIONS NO
 #        )
-#
-#target_link_libraries(unit_tests PRIVATE gmock_main gtest_main)
-#target_link_libraries(unit_tests PRIVATE Threads::Threads)
-#
-## Mockable macro
-#target_compile_definitions(unit_tests PRIVATE "MAKE_MOCKABLE=virtual")
-#target_compile_definitions(eOmegaTestAdapterExecutable PRIVATE "MAKE_MOCKABLE=/**/")
-#target_compile_definitions(${LIBRARY_NAME} PRIVATE "MAKE_MOCKABLE=/**/")
-#
-#include(GoogleTest)
-# End Testing
+#target_compile_options(unit_tests PRIVATE -g -O0 -fprofile-arcs -ftest-coverage -fPIC)
+#target_link_libraries(
+#        unit_tests
+#        gcov
+#)
+## End Testing
