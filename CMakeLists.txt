@@ -5,27 +5,20 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(ExternalProject)
 ExternalProject_Add(
-        SPWL
+        spwl_install
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/spwl
         CMAKE_ARGS
         ${GLOBAL_DEFAULT_ARGS}
         ${GLOBAL_THIRDPARTY_LIB_ARGS}
 )
-set(SPWL_root ${CMAKE_CURRENT_BINARY_DIR}/spwl)
-set(SPWL_include ${SPWL_root}/include)
-set(SPWL_lib ${SPWL_root}/lib)
 
 ExternalProject_Add(
-        wiring_np
+        wiring_np_install
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
         CONFIGURE_COMMAND ""
         BUILD_COMMAND make -j -C <SOURCE_DIR> install-static
         INSTALL_COMMAND ""
 )
-set(wiring_np_root ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi)
-set(wiring_np_lib ${wiring_np_root})
-set(wiring_np_include ${wiring_np_root})
-
 
 include(GNUInstallDirs)
 
@@ -40,10 +33,10 @@ set(${PROJECT_NAME}_SOURCES
 add_library(${PROJECT_NAME}
         STATIC
         ${${PROJECT_NAME}_SOURCES})
-add_dependencies(${PROJECT_NAME} SPWL)
-add_dependencies(${PROJECT_NAME} wiring_np)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SPWL_lib}/libSPWL.a)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${wiring_np_lib}/libwiringPi.a)
+add_dependencies(${PROJECT_NAME} spwl_install)
+add_dependencies(${PROJECT_NAME} wiring_np_install)
+target_link_libraries(${PROJECT_NAME} PRIVATE SPWL)
+target_link_libraries(${PROJECT_NAME} PRIVATE wiringPi)
 
 target_compile_features(${PROJECT_NAME} PRIVATE
         "cxx_std_17"
@@ -61,8 +54,6 @@ target_include_directories(
         ${PROJECT_NAME}
         PRIVATE
         ./lib/include/
-        ${SPWL_include}
-        ${wiring_np_include}
 )
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
