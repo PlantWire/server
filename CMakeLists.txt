@@ -10,8 +10,6 @@ ExternalProject_Add(
         CMAKE_ARGS
         ${GLOBAL_DEFAULT_ARGS}
         ${GLOBAL_THIRDPARTY_LIB_ARGS}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/spwl
-        #    BUILD_COMMAND make
 )
 set(SPWL_root ${CMAKE_CURRENT_BINARY_DIR}/spwl)
 set(SPWL_include ${SPWL_root}/include)
@@ -20,12 +18,8 @@ set(SPWL_lib ${SPWL_root}/lib)
 ExternalProject_Add(
         wiring_np
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
-        #CMAKE_ARGS
-        #${GLOBAL_DEFAULT_ARGS}
-        #${GLOBAL_THIRDPARTY_LIB_ARGS}
-        #-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/wiring_np
         CONFIGURE_COMMAND ""
-        BUILD_COMMAND make -j -C <SOURCE_DIR> static
+        BUILD_COMMAND make -j -C <SOURCE_DIR> install-static
         INSTALL_COMMAND ""
 )
 set(wiring_np_root ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi)
