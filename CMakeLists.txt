@@ -3,22 +3,23 @@ cmake_minimum_required(VERSION 3.16)
 project(pWireServer VERSION "0.8.0" LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 
-include(ExternalProject)
-ExternalProject_Add(
-        spwl_install
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/spwl
-        CMAKE_ARGS
-        ${GLOBAL_DEFAULT_ARGS}
-        ${GLOBAL_THIRDPARTY_LIB_ARGS}
-)
-
-ExternalProject_Add(
-        wiring_np_install
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
-        CONFIGURE_COMMAND ""
-        BUILD_COMMAND make -j -C <SOURCE_DIR> install-static
-        INSTALL_COMMAND ""
-)
+#include(ExternalProject)
+#ExternalProject_Add(
+#        spwl_install
+#        SOURCE_DIR ${CMAKE_SOURCE_DIR}/spwl
+#        CMAKE_ARGS
+#        ${GLOBAL_DEFAULT_ARGS}
+#        ${GLOBAL_THIRDPARTY_LIB_ARGS}
+#        STEP_TARGETS  SPWL
+#)
+#
+#ExternalProject_Add(
+#        wiring_np_install
+#        SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
+#        CONFIGURE_COMMAND ""
+#        BUILD_COMMAND make -j -C <SOURCE_DIR> install-static
+#        INSTALL_COMMAND ""
+#)
 
 include(GNUInstallDirs)
 
@@ -33,10 +34,10 @@ set(${PROJECT_NAME}_SOURCES
 add_library(${PROJECT_NAME}
         STATIC
         ${${PROJECT_NAME}_SOURCES})
-add_dependencies(${PROJECT_NAME} spwl_install)
-add_dependencies(${PROJECT_NAME} wiring_np_install)
-target_link_libraries(${PROJECT_NAME} PRIVATE SPWL)
-target_link_libraries(${PROJECT_NAME} PRIVATE wiringPi)
+#add_dependencies(${PROJECT_NAME} spwl_install)
+#add_dependencies(${PROJECT_NAME} wiring_np_install)
+#target_link_libraries(${PROJECT_NAME} PRIVATE SPWL)
+#target_link_libraries(${PROJECT_NAME} PRIVATE wiringPi)
 
 target_compile_features(${PROJECT_NAME} PRIVATE
         "cxx_std_17"
