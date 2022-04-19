@@ -96,6 +96,7 @@ target_include_directories(
         PRIVATE
         ./exe/include/
 )
+set_target_properties(pWireServerExecutable PROPERTIES OUTPUT_NAME pwire-server)
 
 INSTALL(TARGETS pWireServerExecutable
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
