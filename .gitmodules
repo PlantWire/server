@@ -2,6 +2,3 @@
 	path = spwl
 	#url = ssh://git@gitlab.dev.ifs.hsr.ch:45022/epj/2020/pwire/spwl.git
 	url = ../spwl.git
-[submodule "third_party/wiring_np"]
-	path = third_party/wiring_np
-	url = https://github.com/friendlyarm/WiringNP

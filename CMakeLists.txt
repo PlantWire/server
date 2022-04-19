@@ -5,21 +5,28 @@ set(CMAKE_CXX_STANDARD 17)
 
 #include(ExternalProject)
 #ExternalProject_Add(
-#        spwl_install
+#        SPWL
 #        SOURCE_DIR ${CMAKE_SOURCE_DIR}/spwl
 #        CMAKE_ARGS
 #        ${GLOBAL_DEFAULT_ARGS}
 #        ${GLOBAL_THIRDPARTY_LIB_ARGS}
-#        STEP_TARGETS  SPWL
-#)
-#
-#ExternalProject_Add(
-#        wiring_np_install
-#        SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
-#        CONFIGURE_COMMAND ""
-#        BUILD_COMMAND make -j -C <SOURCE_DIR> install-static
+#        TARGET_STEPS SPWL
 #        INSTALL_COMMAND ""
 #)
+#set(SPWL_root ${CMAKE_CURRENT_BINARY_DIR}/SPWL-prefix/src)
+#set(SPWL_include ${CMAKE_SOURCE_DIR}/spwl/lib/include/)
+#set(SPWL_lib ${SPWL_root}/SPWL-build)
+#
+#ExternalProject_Add(
+#        wiring_np
+#        SOURCE_DIR ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi
+#        CONFIGURE_COMMAND ""
+#        BUILD_COMMAND make -j -C <SOURCE_DIR> static
+#)
+#set(wiring_np_root ${CMAKE_SOURCE_DIR}/third_party/wiring_np/wiringPi)
+#set(wiring_np_lib ${wiring_np_root})
+#set(wiring_np_include ${wiring_np_root})
+
 
 include(GNUInstallDirs)
 
@@ -31,13 +38,15 @@ set(${PROJECT_NAME}_SOURCES
         lib/src/redis-service.cpp
         )
 
+add_subdirectory("spwl")
+add_subdirectory("third_party/wiring_np/wiringPi")
 add_library(${PROJECT_NAME}
         STATIC
         ${${PROJECT_NAME}_SOURCES})
-#add_dependencies(${PROJECT_NAME} spwl_install)
-#add_dependencies(${PROJECT_NAME} wiring_np_install)
-#target_link_libraries(${PROJECT_NAME} PRIVATE SPWL)
-#target_link_libraries(${PROJECT_NAME} PRIVATE wiringPi)
+add_dependencies(${PROJECT_NAME} SPWL)
+target_link_libraries(${PROJECT_NAME} PRIVATE SPWL)
+add_dependencies(${PROJECT_NAME} wiringNP)
+target_link_libraries(${PROJECT_NAME} PRIVATE wiringNP)
 
 target_compile_features(${PROJECT_NAME} PRIVATE
         "cxx_std_17"
@@ -55,6 +64,8 @@ target_include_directories(
         ${PROJECT_NAME}
         PRIVATE
         ./lib/include/
+        ./spwl/lib/include
+        ./third_party/wiring_np/wiringPi
 )
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
@@ -70,30 +81,6 @@ INSTALL(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
         )
-
-#target_link_directories(${LIBRARY_NAME} PRIVATE ${zBleAdapter_lib})
-#target_link_libraries(${LIBRARY_NAME} PRIVATE zBleAdapter0_x86)
-
-
-# Packaging
-#file(GLOB_RECURSE HEADER_DATA_TYPES include/eOmegaTestAdapter/zwickInterface/*.h)
-#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}.dll
-#        DESTINATION lib
-#        COMPONENT library)
-#if(MSVC)
-#    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME}.lib
-#            DESTINATION lib
-#            COMPONENT libraryHeader)
-#endif()
-#install(FILES ${CMAKE_SOURCE_DIR}/assets/conf/eOmegaTestAdapter.ini
-#        DESTINATION conf
-#        COMPONENT conf)
-# install(FILES ${HEADER_DATA_TYPES}
-#         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/eOmegaTestAdapter/zwickInterface
-#         COMPONENT headers)
-# install(FILES include/eOmegaTestAdapter/eOmegaTestAdapter.h
-#         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/eOmegaTestAdapter
-#         COMPONENT headers)
 
 # Executable
 add_executable(

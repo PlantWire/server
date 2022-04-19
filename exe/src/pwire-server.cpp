@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include "../../lib/include/pwire-server-lib.h"
 
 void subscriptionCallback(const std::string &channel, const std::string &msg,
