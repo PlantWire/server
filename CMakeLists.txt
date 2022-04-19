@@ -39,7 +39,7 @@ set(${PROJECT_NAME}_SOURCES
         )
 
 add_subdirectory("spwl")
-add_subdirectory("third_party/wiring_np/wiringPi")
+add_subdirectory("third_party/wiring_np")
 add_library(${PROJECT_NAME}
         STATIC
         ${${PROJECT_NAME}_SOURCES})
