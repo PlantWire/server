@@ -80,6 +80,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "lib/include/pwir
 INSTALL(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+        COMPONENT pwire-server-backend-library
         )
 
 # Executable
@@ -100,6 +101,7 @@ set_target_properties(pWireServerExecutable PROPERTIES OUTPUT_NAME pwire-server)
 
 INSTALL(TARGETS pWireServerExecutable
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT pwire-server-backend-executable
         )
 
 ### Testing
