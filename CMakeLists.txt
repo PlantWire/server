@@ -77,11 +77,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE hiredis)
 ## Library installation
 ## Installation
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "lib/include/pwire-server-lib.h;lib/include/logger.h")
-INSTALL(TARGETS ${PROJECT_NAME}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-        COMPONENT pwire-server-backend-library
-        )
+#INSTALL(TARGETS ${PROJECT_NAME}
+#        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}
+#        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+#        COMPONENT pwire-server-backend-library
+#        )
 
 # Executable
 add_executable(
@@ -100,8 +100,7 @@ target_include_directories(
 set_target_properties(pWireServerExecutable PROPERTIES OUTPUT_NAME pwire-server)
 
 INSTALL(TARGETS pWireServerExecutable
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        COMPONENT pwire-server-backend-executable
+        RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 ### Testing
