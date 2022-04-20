@@ -38,8 +38,8 @@ set(${PROJECT_NAME}_SOURCES
         lib/src/redis-service.cpp
         )
 
-add_subdirectory("spwl")
-add_subdirectory("third_party/wiring_np")
+add_subdirectory("spwl" EXCLUDE_FROM_ALL)
+add_subdirectory("third_party/wiring_np" EXCLUDE_FROM_ALL)
 add_library(${PROJECT_NAME}
         STATIC
         ${${PROJECT_NAME}_SOURCES})
