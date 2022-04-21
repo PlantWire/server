@@ -100,7 +100,7 @@ target_include_directories(
 set_target_properties(pWireServerExecutable PROPERTIES OUTPUT_NAME pwire-server)
 
 INSTALL(TARGETS pWireServerExecutable
-        RUNTIME DESTINATION /usr/bin
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
 
 ### Testing
