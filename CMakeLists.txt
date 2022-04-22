@@ -72,7 +72,6 @@ find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 target_link_libraries(${PROJECT_NAME} PRIVATE redis++)
 target_link_libraries(${PROJECT_NAME} PRIVATE hiredis)
-target_link_libraries(${PROJECT_NAME} PRIVATE hiredis)
 
 ## Library installation
 ## Installation
