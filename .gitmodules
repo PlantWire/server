@@ -4,4 +4,4 @@
 	url = ../spwl.git
 [submodule "third_party/wiring_np"]
 	path = third_party/wiring_np
-	url = https://github.com/Vec7or/WiringNP
+	url = https://github.com/PlantWire/WiringNP.git
